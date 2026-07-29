@@ -1,0 +1,96 @@
+{
+  "theme": "Light theme primary. Dark theme toggle available but Light is default to emphasize freshness, outdoor accessibility, and transparency.",
+  "typography": {
+    "headings": {
+      "font_family": "Cabinet Grotesk",
+      "weights": ["light", "bold", "black"],
+      "classes": "font-sans tracking-tight leading-none text-forest-green",
+      "h1_max": "text-4xl sm:text-5xl lg:text-6xl"
+    },
+    "body": {
+      "font_family": "Manrope",
+      "weights": ["regular", "medium", "semibold"],
+      "classes": "font-sans leading-relaxed text-gray-800"
+    }
+  },
+  "colors": {
+    "archetype": "ORGANIC & EARTHY",
+    "palette": {
+      "background_primary": "#FAFAFA",
+      "background_secondary": "#F4F1EA", 
+      "primary": "#1E392A",
+      "primary_foreground": "#FFFFFF",
+      "accent_terracotta": "#CC5A37",
+      "accent_ochre": "#D99C3D",
+      "accent_sky": "#739EB0",
+      "border": "rgba(30, 57, 42, 0.15)",
+      "surface_card": "#FFFFFF"
+    },
+    "rules": [
+      "No full-screen gradients. Use solid colors with noise texture.",
+      "Tint greys with a slight warm orange (sand) to keep it earthy.",
+      "Hover states must increase contrast and explicitly set text colors."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": [
+      "Grid Borders (Technical Look): Use for Supplier data tables to enforce the concept of transparency (borders on right and bottom of cells).",
+      "Tactile Cards: Use solid backgrounds with 1px border for Farmer Dashboard cards. Avoid heavy shadows; keep it grounded and tactile.",
+      "NO glassmorphism on dense dashboards to prevent data refraction. Keep solid backgrounds to maintain contrast."
+    ],
+    "motion": [
+      "Staggered entrance animations for incoming bids.",
+      "Micro-interactions: Buttons should slightly lift (-translate-y-1) on hover with a sharper shadow.",
+      "Use framer-motion for smooth list reordering when the 'Smart Auto Allocation' triggers."
+    ]
+  },
+  "layouts": {
+    "farmer_dashboard": "Mobile-first Bento Grid (grid-cols-1 md:grid-cols-8). Large tap targets and tactile buttons, heavily optimizing for outdoor mobile usage.",
+    "supplier_dashboard": "High Density Grid (grid-cols-1 md:grid-cols-4 gap-4). Every pixel utilized for bid comparisons. Incorporate sticky headers for wide data tables.",
+    "customer_marketplace": "The Swiss Grid. Wide gap-8, asymmetrical product showcases emphasizing origin transparency.",
+    "spacing": "Generous spacing philosophy. Use p-6 or p-8 inside bordered containers to prevent text collision."
+  },
+  "component_rules": {
+    "forms": "Use Shadcn Form, Input, Select. Strip default 'Vercel-look'. Use earthy borders and slightly larger text (text-base) for mobile input accessibility.",
+    "tables": "Use Shadcn Table. Dense, spreadsheet-like styling for reverse bidding views.",
+    "charts": "Use Recharts or Shadcn Charts for Market Price Trends. Style lines with earthy greens and terracotta.",
+    "icons": "Use @phosphor-icons/react for clean, premium duotone and regular weight icons.",
+    "toasts": "Use Sonner for notifications (e.g. 'Bid Submitted'). Position bottom-center for mobile."
+  },
+  "image_urls": {
+    "farmers": [
+      {
+        "url": "https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwyfHxpbmRpYW4lMjBmYXJtZXIlMjBhZ3JpY3VsdHVyYWwlMjB0ZWNobm9sb2d5fGVufDB8fHx8MTc4NTE0NTEwNnww&ixlib=rb-4.1.0&q=85",
+        "description": "Woman harvesting rice, authentic representation of grassroots farmers",
+        "category": "hero_banner_or_farmer_profile"
+      }
+    ],
+    "produce": [
+      {
+        "url": "https://images.unsplash.com/photo-1485637701894-09ad422f6de6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMG9yZ2FuaWMlMjBwcm9kdWNlJTIwY3JhdGUlMjBtYXJrZXR8ZW58MHx8fHwxNzg1MTQ1MTA2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Fresh tomatoes in crates",
+        "category": "marketplace_product_sample"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1591586116988-62fe65164f8d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwzfHxmcmVzaCUyMG9yZ2FuaWMlMjBwcm9kdWNlJTIwY3JhdGUlMjBtYXJrZXR8ZW58MHx8fHwxNzg1MTQ1MTA2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Green and red vegetables on wooden table",
+        "category": "marketplace_product_sample"
+      }
+    ],
+    "supplier_logistics": [
+      {
+        "url": "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHx3YXJlaG91c2UlMjBzdXBwbGllciUyMGxvZ2lzdGljc3xlbnwwfHx8fDE3ODUxNDUxMDd8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Warehouse shelves with cardboard boxes",
+        "category": "supplier_dashboard_banner"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Run: yarn add @phosphor-icons/react framer-motion recharts sonner",
+    "Implement multilingual support (English/Hindi) structurally using an i18n context so Farmers can easily toggle language.",
+    "Add 'data-testid' attributes to ALL interactive and key informational elements (e.g. data-testid='submit-bid-button').",
+    "Load 'Cabinet Grotesk' and 'Manrope' fonts via Fontshare or Google Fonts in index.css.",
+    "Ensure the reverse bidding table has clear sorting functionalities and highlights 'Smart Allocation' recommendations."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": "Avoid generic 'AI slop' UI. NEVER use Inter for headings. DO NOT use generic SaaS blue; use the provided earthy palette. Ensure all components have hover/active states with explicitly defined text colors. DO NOT use transparent backgrounds on headers, dropdowns, or overlays. DO NOT apply universal 'transition: all' in CSS. DO NOT center align the root .App container. Use high padding (p-6, p-8) to give content room to breathe."
+}

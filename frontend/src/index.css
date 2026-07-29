@@ -1,0 +1,74 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,700,800,900,300&f[]=general-sans@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #FAFAFA;
+}
+
+@layer base {
+    :root {
+        --background: 60 20% 99%;
+        --foreground: 147 31% 12%;
+        --card: 0 0% 100%;
+        --card-foreground: 147 31% 12%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 147 31% 12%;
+        --primary: 147 31% 17%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 42 30% 92%;
+        --secondary-foreground: 147 31% 17%;
+        --muted: 42 25% 94%;
+        --muted-foreground: 147 10% 40%;
+        --accent: 14 60% 51%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 72% 45%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 147 15% 85%;
+        --input: 147 15% 82%;
+        --ring: 147 31% 17%;
+        --radius: 0.65rem;
+        --chart-1: 147 31% 25%;
+        --chart-2: 14 60% 51%;
+        --chart-3: 39 66% 55%;
+        --chart-4: 198 24% 57%;
+        --chart-5: 42 30% 70%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    h1, h2, h3, h4, .font-head {
+        font-family: 'Cabinet Grotesk', 'Manrope', sans-serif;
+        letter-spacing: -0.02em;
+    }
+}
+
+.grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+::selection {
+    background: #CC5A37;
+    color: #fff;
+}
+
+.lift-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.lift-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -10px rgba(30, 57, 42, 0.25);
+}
