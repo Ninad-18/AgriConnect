@@ -1,4 +1,4 @@
-idea :- 
+idea :- Basically we are creating a e-commerce type similar website , our idea is there will be there main users -> farmer, middle man / supplier , customer. The main problem we identified is that suppose a farmer is supplying some good to the supplier but the supplier doesn't gives him the fair price like say onions are going 35 rs per/kg in actual market but the supplier only gives 10 rs per/kg to farmer. He gives them and excuse like import is more hence price has decreased which is a type of looting . So like we are creating a platform similar to amazon where the supplier/ customer can track their delivery, also to solve the price issue the supplier will post that I need this certain product in this quantity where notification will go to the relative farmer and then they will bid for it like A says I'll give you x amount for y rs. While B says he'll give you c amount for y rs. A platform where farmers can get their fair price and not get stole .
 
 
 
