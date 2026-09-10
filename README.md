@@ -34,21 +34,21 @@ Exactly **three** user roles (no admin portal):
 
 ## Tech Stack
 
-| Layer         | Technology |
-|---------------|-----------|
+| Layer         | Technology                                                  |
+|---------------|-------------------------------------------------------------|
 | Frontend      | React + TypeScript, Vite, Tailwind CSS, React Router, Axios |
-| Backend       | Node.js + Express + TypeScript |
-| Primary DB    | PostgreSQL + Prisma ORM |
-| NoSQL DB      | MongoDB (flexible/AI/analytics data) |
-| Cache         | Redis (market prices, rate limiting, ephemeral data) |
-| Auth          | JWT + bcrypt |
-| Images        | Cloudinary |
-| Real-time     | Socket.IO |
-| Notifications | Firebase Cloud Messaging |
-| Payments      | Razorpay (server-verified + webhooks) |
-| Maps          | Google Maps API |
-| Market data   | AGMARKNET / eNAM |
-| AI/ML         | Python + FastAPI (future enhancement) |
+| Backend       | Node.js + Express + TypeScript                              |
+| Primary DB    | PostgreSQL + Prisma ORM                                     |
+| NoSQL DB      | MongoDB (flexible/AI/analytics data)                        |
+| Cache         | Redis (market prices, rate limiting, ephemeral data)        |
+| Auth          | JWT + bcrypt                                                |
+| Images        | Cloudinary                                                  |
+| Real-time     | Socket.IO                                                   |
+| Notifications | Firebase Cloud Messaging                                    |
+| Payments      | Razorpay (server-verified + webhooks)                       |
+| Maps          | Google Maps API                                             |
+| Market data   | AGMARKNET / eNAM                                            |
+| AI/ML         | Python + FastAPI (future enhancement)                       |
 
 ## Architecture
 
