@@ -17,7 +17,7 @@ app/
 ├── docker-compose.yml                 ← Runs Postgres, MongoDB, Redis, backend & frontend together
 ├── Explanation.md                     ← This file
 ├── backend/                           ← API server (Express + TypeScript)
-│   ├── package.json                   ← Backend dependencies + npm scripts (dev/build/start/prisma seed)
+│   ├── package.json                   ← Backend dependencies + npm scripts (dev/build/start  prisma seed)
 │   ├── package-lock.json              ← Lockfile (pinned versions)
 │   ├── tsconfig.json                  ← TypeScript compiler config for the backend
 │   ├── .env.example                   ← Template of every environment variable. Copy to .env
