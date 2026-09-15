@@ -113,12 +113,12 @@ app/
 
 ### Backend "module" pattern (all 15 modules follow it)
 
-| File | Responsibility |
-|------|----------------|
-| `*.routes.ts`    | URL paths + HTTP verbs, wires middleware & controller |
+|     File         |                Responsibility                                   |
+|------------------|-----------------------------------------------------------------|
+| `*.routes.ts`    | URL paths + HTTP verbs, wires middleware & controller           |
 | `*.controller.ts`| Thin HTTP layer — calls service, sends `{ success, data }` JSON |
-| `*.service.ts`   | Business logic + database access (Prisma/Mongo) |
-| `*.validation.ts`| Zod schemas that validate incoming request bodies |
+| `*.service.ts`   | Business logic + database access (Prisma/Mongo)                 |
+| `*.validation.ts`| Zod schemas that validate incoming request bodies               |
 
 Every API response is wrapped as `{ success: true/false, data: ... }` (or an error message) so the
 frontend unwraps consistently: `res.data.data`.
