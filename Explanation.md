@@ -131,12 +131,12 @@ These are **empty placeholders** right now. Without them the related features wo
 (they degrade gracefully — e.g. the checkout warns "payment not configured").
 
 ### Required to start at all (in `backend/.env`)
-| Variable | Value | Purpose |
-|----------|-------|---------|
-| `DATABASE_URL` | `postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public` | PostgreSQL connection (Prisma) |
-| `MONGO_URL` | `mongodb://localhost:27017/agriconnect` | MongoDB connection (Mongoose) |
-| `REDIS_URL` | `redis://localhost:6379` | Redis cache connection |
-| `JWT_SECRET` | any long random string | Signs login tokens — **change from the default** in production |
+| Variable       | Value                  | Purpose                                        |
+|----------------|------------------------|------------------------------------------------|
+| `DATABASE_URL` | `postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public`   | PostgreSQL connection (Prisma)                                          |
+| `MONGO_URL`    | `mongodb://localhost:27017/agriconnect` | MongoDB connection (Mongoose) |
+| `REDIS_URL`    | `redis://localhost:6379` | Redis cache connection |
+| `JWT_SECRET`   | any long random string | Signs login tokens — **change from the default** in production |
 
 ### Required for specific features
 | Variable | Where to set | Feature it unlocks |
