@@ -139,12 +139,12 @@ These are **empty placeholders** right now. Without them the related features wo
 | `JWT_SECRET`   | any long random string   | Signs login tokens — **change from the default** in production                                                                    |
 
 ### Required for specific features
-| Variable | Where to set | Feature it unlocks |
-|-----------------------------------|--------------|--------------------|
-| `CLOUDINARY_CLOUD_NAME` | `backend/.env` | Uploading bid photos & product images to Cloudinary |
-| `CLOUDINARY_API_KEY` | `backend/.env` | (same) |
-| `CLOUDINARY_API_SECRET` | `backend/.env` | (same) |
-| `RAZORPAY_KEY_ID` | `backend/.env` + `frontend/.env` (as `VITE_RAZORPAY_KEY_ID`) | Real customer payments |
+| Variable                          | Where to set        | Feature it unlocks |
+|-----------------------------------|---------------------|--------------------|
+| `CLOUDINARY_CLOUD_NAME`           | `backend/.env`      | Uploading bid photos & product images to Cloudinary |
+| `CLOUDINARY_API_KEY`              | `backend/.env`      | (same) |
+| `CLOUDINARY_API_SECRET`           | `backend/.env`      | (same) |
+| `RAZORPAY_KEY_ID`                 | `backend/.env` + `frontend/.env` (as `VITE_RAZORPAY_KEY_ID`) | Real customer payments |
 | `RAZORPAY_KEY_SECRET` | `backend/.env` | Server-side order creation + verification |
 | `RAZORPAY_WEBHOOK_SECRET` | `backend/.env` | Validates Razorpay webhook signatures |
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | `backend/.env` | Firebase Cloud Messaging (push notifications) |
