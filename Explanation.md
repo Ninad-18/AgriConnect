@@ -139,8 +139,8 @@ These are **empty placeholders** right now. Without them the related features wo
 | `JWT_SECRET`   | any long random string   | Signs login tokens — **change from the default** in production                                                                    |
 
 ### Required for specific features
-| Variable                          | Where to set        | Feature it unlocks |
-|-----------------------------------|---------------------|--------------------|
+| Variable                          | Where to set        | Feature it unlocks              |
+|-----------------------------------|---------------------|---------------------------------|
 | `CLOUDINARY_CLOUD_NAME`           | `backend/.env`      | Uploading bid photos & product images to Cloudinary |
 | `CLOUDINARY_API_KEY`              | `backend/.env`      | (same) |
 | `CLOUDINARY_API_SECRET`           | `backend/.env`      | (same) |
