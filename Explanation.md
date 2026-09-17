@@ -268,14 +268,14 @@ Customer adds to cart → checkout (address) → order created (PAYMENT_PENDING)
 Each bid gets a **0–1 score** using weighted factors; the supplier decides (recommendation is never
 auto-awarded):
 
-| Weight | Criterion | Default | What favours a higher score |
-|--------|-----------|---------|-----------------------------|
-| 0.30 | Price | 30% | close to (or better than) the supplier's target price |
-| 0.25 | Quality | 25% | higher declared grade |
-| 0.15 | Quantity | 15% | better coverage of the required quantity |
-| 0.10 | Delivery time | 10% | earlier/feasible delivery date |
-| 0.10 | Distance | 10% | farmer closer to the market |
-| 0.10 | Reliability | 10% | farmer's reliability history from past deliveries |
+| Weight | Criterion     | Default | What favours a higher score                           |
+|--------|---------------|---------|-------------------------------------------------------|
+| 0.30   | Price         | 30%     | close to (or better than) the supplier's target price |
+| 0.25   | Quality       | 25%     | higher declared grade                                 |
+| 0.15   | Quantity      | 15%     | better coverage of the required quantity              |
+| 0.10   | Delivery time | 10%     | earlier/feasible delivery date                        |
+| 0.10   | Distance      | 10%     | farmer closer to the market                           |
+| 0.10   | Reliability   | 10%     | farmer's reliability history from past deliveries     |
 
 Weights are configurable; defaults live in `frontend`/`backend` `constants.ts`
 (`DEFAULT_ALLOCATION_WEIGHTS`).
