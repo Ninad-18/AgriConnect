@@ -144,11 +144,11 @@ These are **empty placeholders** right now. Without them the related features wo
 | `CLOUDINARY_CLOUD_NAME`           | `backend/.env`      | Uploading bid photos & product images to Cloudinary                                                                        |
 | `CLOUDINARY_API_KEY`              | `backend/.env`      |            (same)               |
 | `CLOUDINARY_API_SECRET`           | `backend/.env`      |            (same)               |
-| `RAZORPAY_KEY_ID`                 | `backend/.env` + `frontend/.env` (as `VITE_RAZORPAY_KEY_ID`) | Real customer payments |
-| `RAZORPAY_KEY_SECRET` | `backend/.env` | Server-side order creation + verification |
-| `RAZORPAY_WEBHOOK_SECRET` | `backend/.env` | Validates Razorpay webhook signatures |
-| `FIREBASE_SERVICE_ACCOUNT_PATH` | `backend/.env` | Firebase Cloud Messaging (push notifications) |
-| `GOOGLE_MAPS_API_KEY` | `backend/.env` | Distance/location features (currently optional; farmers store manual distance) |
+| `RAZORPAY_KEY_ID`                 | `backend/.env` + `frontend/.env` (as `VITE_RAZORPAY_KEY_ID`) | Real customer payments                                            |
+| `RAZORPAY_KEY_SECRET` | `backend/.env` | Server-side order creation + verification        |
+| `RAZORPAY_WEBHOOK_SECRET` | `backend/.env` | Validates Razorpay webhook signatures        |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | `backend/.env` | Firebase Cloud Messaging (push notifications)                                                                              |
+| `GOOGLE_MAPS_API_KEY` | `backend/.env` | Distance/location features (currently optional; farmers store manual distance)                                                              |
 
 ### Notes on the API keys
 - `RAZORPAY_WEBHOOK_SECRET` and `FIREBASE_SERVICE_ACCOUNT_PATH`
