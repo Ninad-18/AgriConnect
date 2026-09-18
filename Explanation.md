@@ -131,8 +131,8 @@ These are **empty placeholders** right now. Without them the related features wo
 (they degrade gracefully — e.g. the checkout warns "payment not configured").
 
 ### Required to start at all (in `backend/.env`)
-| Variable       | Value                  | Purpose                                        |
-|----------------|------------------------|------------------------------------------------|
+| Variable       | Value                    | Purpose                                        |
+|----------------|--------------------------|------------------------------------------------|
 | `DATABASE_URL` | `postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public`   | PostgreSQL connection (Prisma)                                          |
 | `MONGO_URL`    | `mongodb://localhost:27017/agriconnect` | MongoDB connection (Mongoose) |
 | `REDIS_URL`    | `redis://localhost:6379` | Redis cache connection                       |
