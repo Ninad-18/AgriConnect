@@ -285,11 +285,11 @@ Weights are configurable; defaults live in `frontend`/`backend` `constants.ts`
 ## 6. Installation & What's Already Installed on Your Machine
 
 ### Node.js runtime — ✅ ALREADY INSTALLED
-| Tool | Version found |
-|------|---------------|
-| Node.js | v22.20.0 |
-| npm | 10.9.3 |
-| git | 2.50.1 |
+| Tool    | Version found |
+|---------|---------------|
+| Node.js | v22.20.0      |
+| npm     | 10.9.3        |
+| git     | 2.50.1        |
 
 ### npm packages — ✅ ALREADY INSTALLED (node_modules present in both folders)
 - `backend/package.json` deps: `@prisma/client`, `express`, `cors`, `helmet`, `morgan`, `zod`,
