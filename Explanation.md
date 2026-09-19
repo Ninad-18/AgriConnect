@@ -307,12 +307,12 @@ cd frontend && npm run build      # bundles to frontend/dist
 ```
 
 ### Databases & services — ❌ NOT RUNNING YET (needed before `npm run dev`)
-| Service    | Status on this machine |
-|------------|------------------------|
-| PostgreSQL | ❌ Not installed (no service found) |
-| MongoDB | ❌ Not installed |
-| Redis | ❌ Not installed |
-| Docker | ❌ **Docker is NOT installed** — `docker compose` won't run |
+| Service    | Status on this machine                                      |
+|------------|-------------------------------------------------------------|
+| PostgreSQL | ❌ Not installed (no service found)                         |
+| MongoDB    | ❌ Not installed                                            |
+| Redis      | ❌ Not installed                                            |
+| Docker     | ❌ **Docker is NOT installed** — `docker compose` won't run |
 
 > This is the one remaining blocker. `prisma db push`/`migrate` and the seed script need a live
 > PostgreSQL; the server also connects to Mongo and Redis at startup.
