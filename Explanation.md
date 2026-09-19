@@ -307,8 +307,8 @@ cd frontend && npm run build      # bundles to frontend/dist
 ```
 
 ### Databases & services — ❌ NOT RUNNING YET (needed before `npm run dev`)
-| Service | Status on this machine |
-|---------|------------------------|
+| Service    | Status on this machine |
+|------------|------------------------|
 | PostgreSQL | ❌ Not installed (no service found) |
 | MongoDB | ❌ Not installed |
 | Redis | ❌ Not installed |
