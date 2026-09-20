@@ -150,6 +150,7 @@ These are **empty placeholders** right now. Without them the related features wo
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | `backend/.env` | Firebase Cloud Messaging (push notifications)                                                                              |
 | `GOOGLE_MAPS_API_KEY` | `backend/.env` | Distance/location features (currently optional; farmers store manual distance)                                                              |
 
+
 ### Notes on the API keys
 - `RAZORPAY_WEBHOOK_SECRET` and `FIREBASE_SERVICE_ACCOUNT_PATH`
   are read via `verifyWebhookSignature`/FCM. If empty, the webhook endpoint returns
