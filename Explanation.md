@@ -349,13 +349,13 @@ npm run dev                 # starts Vite on :5173 (proxies /api → :5000)
 ## 7. More Technical Details
 
 ### 7.1 State machines (who moves what)
-| Entity | Flow |
-|--------|------|
-| Procurement | `OPEN → BIDDING_CLOSED → UNDER_SELECTION → PARTIALLY_FULFILLED → FULLY_ALLOCATED → IN_DELIVERY → COMPLETED` |
-| Bid | `SUBMITTED → ACTIVE → ACCEPTED \| REJECTED \| WITHDRAWN \| EXPIRED` |
-| Farmer contract | `CREATED → ACCEPTED → IN_DELIVERY → RECEIVED → QUALITY_VERIFIED → COMPLETED` (+ `LATE → FAILED`) |
-| Customer order | `CREATED → PAYMENT_PENDING → CONFIRMED → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED` |
-| Payment | `CREATED → CAPTURED` (webhook-only, idempotent) |
+| Entity          | Flow                                                                |
+|-----------------|---------------------------------------------------------------------|
+| Procurement     | `OPEN → BIDDING_CLOSED → UNDER_SELECTION → PARTIALLY_FULFILLED → FULLY_ALLOCATED → IN_DELIVERY → COMPLETED`                                              |
+| Bid             | `SUBMITTED → ACTIVE → ACCEPTED \| REJECTED \| WITHDRAWN \| EXPIRED` |
+| Farmer contract | `CREATED → ACCEPTED → IN_DELIVERY → RECEIVED → QUALITY_VERIFIED → COMPLETED` (+ `LATE → FAILED`)                                                          |
+| Customer order  | `CREATED → PAYMENT_PENDING → CONFIRMED → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`                                                           |
+| Payment         | `CREATED → CAPTURED` (webhook-only, idempotent)                     |
 
 ### 7.2 Security choices already built in
 - Passwords hashed with **bcrypt** (10 rounds).
