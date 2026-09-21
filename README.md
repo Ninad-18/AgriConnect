@@ -4,7 +4,7 @@
 
 A production-oriented agricultural procurement and e-commerce platform.
 
-AgriConnect solves the information-asymmetry problem between farmers and suppliers/middlemen by providing:
+AgriConnect solves the information-asymmetry problem between farmers and suppliers/middlemen by providing :
 
 1. Market price transparency
 2. Supplier-created procurement requirements (reverse procurement)
