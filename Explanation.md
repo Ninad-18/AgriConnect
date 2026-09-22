@@ -358,6 +358,7 @@ npm run dev                 # starts Vite on :5173 (proxies /api → :5000)
 | Customer order  | `CREATED → PAYMENT_PENDING → CONFIRMED → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`                                                           |
 | Payment         | `CREATED → CAPTURED` (webhook-only, idempotent)                     |
 
+
 ### 7.2 Security choices already built in
 - Passwords hashed with **bcrypt** (10 rounds).
 - JWT signed with `JWT_SECRET`; `authenticate` + `authorize("FARMER|SUPPLIER|CUSTOMER")` on routes.
