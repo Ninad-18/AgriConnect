@@ -15,6 +15,7 @@ AgriConnect solves the information-asymmetry problem between farmers and supplie
 7. Supplier inventory management
 8. A B2C e-commerce marketplace where suppliers sell acquired produce to customers
 
+
 ## Business Flow
 
 ```
