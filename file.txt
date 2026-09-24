@@ -1,7 +1,6 @@
 Prompt idea...
 
 # AgriConnect
-
 ## Empowering Farmers, Redefining Agricultural Procurement
 
 You are helping me design and develop a production-oriented agricultural procurement and e-commerce platform called **AgriConnect**.
@@ -95,7 +94,6 @@ A farmer should be able to:
 * View payment-related information
 
 ---
-
 # 4. Supplier
 
 The supplier is the central buyer on the B2B side and seller on the B2C side.
