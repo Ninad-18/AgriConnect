@@ -125,7 +125,6 @@ The backend is one deployable application internally divided into clear modules:
 
 ## Getting Started  --->
 
-
 ### Backend
 
 ```bash
