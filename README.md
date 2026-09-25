@@ -123,8 +123,8 @@ The backend is one deployable application internally divided into clear modules:
 - **Farmer contract:** `CREATED → ACCEPTED → IN_DELIVERY → RECEIVED → QUALITY_VERIFIED → COMPLETED`
 - **Customer order:** `CREATED → PAYMENT_PENDING → CONFIRMED → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`
 
-## Getting Started  --->
 
+## Getting Started  --->
 ### Backend
 
 ```bash
