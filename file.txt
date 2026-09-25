@@ -742,6 +742,7 @@ The database design must preserve these relationships clearly.
 At minimum, design entities/tables around:
 
 ```text
+
 User
 FarmerProfile
 SupplierProfile
