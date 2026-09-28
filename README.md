@@ -1,5 +1,4 @@
 # AgriConnect
-
 **Empowering Farmers, Redefining Agricultural Procurement**
 
 A production-oriented agricultural procurement and e-commerce platform.
@@ -17,7 +16,6 @@ AgriConnect solves the information-asymmetry problem between farmers and supplie
 
 
 ## Business Flow
-
 ```
 Farmer → Supplier → Customer
 ```
