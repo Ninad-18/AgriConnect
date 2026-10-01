@@ -1,0 +1,46 @@
+Step 1 — Pick a database option (the critical one)
+Choose one:
+
+Option A: Install Docker Desktop (easiest)
+
+Download from https://www.docker.com/products/docker-desktop/ and install
+Sign in with a Docker Hub account
+Open Docker Desktop and start the engine
+Option B: Install natively (no Docker account)
+
+PostgreSQL → postgresql.org/download (port 5432, user/pass/DB = agriconnect)
+MongoDB Community Server → mongodb.com/try/download/community
+Redis → redis.io/download (or Memurai on Windows)
+Tell me which option you pick and I'll continue with the rest. If you install Docker, I can run the compose commands for you.
+
+Step 2 — Create the database schema
+cd backend
+npx prisma db push      # creates all 23 tables from schema.prisma
+npm run prisma:seed     # demo users + market prices + catalogue
+Step 3 — Provide real API keys (in backend/.env)
+Minimum to run end-to-end:
+
+Key	Needed for
+JWT_SECRET	Change from placeholder → real auth
+CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET	Bid photos + product images (free Cloudinary account)
+RAZORPAY_KEY_ID/SECRET/WEBHOOK_SECRET (+ same key ID in frontend/.env)	Customer payments
+Optional until later: Firebase (FIREBASE_SERVICE_ACCOUNT_PATH), Google Maps.
+
+Step 4 — Start both servers
+cd backend
+npm run dev              # API on :5000
+
+# new terminal
+cd frontend
+npm run dev              # UI on :5173, proxies /api → :5000
+Step 5 — Smoke-test the flows
+Open http://localhost:5173, log in as the seeded users (password123), and verify:
+
+Supplier creates a procurement → farmer submits a bid → supplier accepts → contract created
+Supplier marks received → verifies quality (ACCEPTED) → stock appears in inventory
+Supplier lists inventory as a product → customer buys → Razorpay test mode payment → order confirms
+What I can do for you right now
+Step 2 (db push + seed) and Step 4 (start servers): automatic, once Step 1 is done
+Walk you through creating the Cloudinary/Razorpay keys step-by-step
+Want to start with Docker or native installs?
+
