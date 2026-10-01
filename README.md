@@ -18,7 +18,7 @@ AgriConnect solves the information-asymmetry problem between farmers and supplie
 ## Business Flow
 ```
 Farmer → Supplier → Customer
-```
+``` 
 
 - **B2B Procurement:** Farmers compete to fulfill supplier requirements through transparent, open bidding.
 - **B2C E-commerce:** Suppliers sell the produce they acquired from farmers through a normal e-commerce experience.
