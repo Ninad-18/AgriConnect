@@ -1,0 +1,560 @@
+// ─────────────────────────────────────────────────────────────
+//  AgriConnect - PostgreSQL Schema (source of truth for
+//  all transactional data)
+//
+//  Polyglot persistence: MongoDB holds flexible/analytics/AI
+//  documents; Redis caches market prices & ephemeral data.
+//  PostgreSQL is authoritative for users, procurements, bids,
+//  contracts, orders, inventory, products, payments, deliveries.
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────
+
+enum Role {
+  FARMER
+  SUPPLIER
+  CUSTOMER
+}
+
+enum Grade {
+  A
+  B
+  C
+}
+
+// Grades sorted: A > B > C
+enum GradeRank {
+  A_3
+  B_2
+  C_1
+}
+
+enum GradeStatus {
+  DRAFT
+  OPEN
+  BIDDING_CLOSED
+  UNDER_SELECTION
+  PARTIALLY_FULFILLED
+  FULLY_ALLOCATED
+  IN_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  SUBMITTED
+  ACTIVE
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum ContractStatus {
+  CREATED
+  ACCEPTED
+  IN_DELIVERY
+  RECEIVED
+  QUALITY_VERIFIED
+  COMPLETED
+  LATE
+  FAILED
+  CANCELLED
+}
+
+enum VerificationOutcome {
+  ACCEPTED
+  ADJUSTED
+  REJECTED
+  DISPUTED
+  PENDING
+}
+
+enum TransportMode {
+  SUPPLIER
+  FARMER
+}
+
+enum AllocationMode {
+  MANUAL
+  SMART
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  RESERVED
+  SOLD_OUT
+}
+
+enum OrderStatus {
+  CREATED
+  PAYMENT_PENDING
+  CONFIRMED
+  PROCESSING
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  OFFLINE_CASH
+  MANUAL
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+// ── Users & Profiles ──────────────────────────────────────
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  role            Role
+  name            String
+  phone           String?
+  location        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  farmerProfile   FarmerProfile?
+  supplierProfile SupplierProfile?
+  customerProfile CustomerProfile?
+
+  notifications   Notification[]
+  ratingsGiven    Rating[]         @relation("Rater")
+  ratingsReceived Rating[]         @relation("Ratee")
+
+  supplierProcurements ProcurementRequest[] @relation("SupplierProcurements")
+  farmerBids            Bid[]                @relation("FarmerBids")
+  farmerContracts       FarmerContract[]     @relation("FarmerContracts")
+  customerOrders        CustomerOrder[]      @relation("CustomerOrders")
+
+  @@index([role])
+}
+
+model FarmerProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  farmName       String?
+  location       String?
+  crops          String[] // searched crop names
+  farmSizeAcres  Float?
+  distanceKm     Float    @default(25)
+  bio            String?
+  reliability    Float    @default(100) // decreased after confirmed failures
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SupplierProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName    String?
+  location       String?
+  businessType   String?
+  bio            String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CustomerProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultAddress String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  addresses      Address[]
+  cart           Cart?
+}
+
+// ── Catalogue ─────────────────────────────────────────────
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  unit        String   @default("kg")
+  cropName    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  listings       ProductListing[]
+  procurements   ProcurementRequest[]
+  inventoryItems InventoryItem[]
+}
+
+// ── Procurement ───────────────────────────────────────────
+
+model ProcurementRequest {
+  id                 String         @id @default(uuid())
+  productId          String
+  product            Product        @relation(fields: [productId], references: [id])
+  supplierId         String
+  supplier           User           @relation("SupplierProcurements", fields: [supplierId], references: [id])
+  quantityKg         Float
+  minGrade           Grade
+  minGradeRank       GradeRank
+  deliveryDate       DateTime
+  bidDeadline        DateTime
+  transport          TransportMode
+  allowPartial       Boolean        @default(true)
+  allocationMode     AllocationMode
+  targetPrice        Float?
+  notes              String?
+  status             GradeStatus    @default(DRAFT)
+  requiredQuantityKg Float
+  awardedQuantityKg  Float          @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  bids               Bid[]
+  contracts          FarmerContract[]
+  allocationWeights  AllocationWeight?
+
+  @@index([supplierId])
+  @@index([status])
+  @@index([bidDeadline])
+}
+
+// Configurable smart-allocation weights (per request override)
+model AllocationWeight {
+  id          String  @id @default(uuid())
+  procurementRequestId String @unique
+  procurementRequest   ProcurementRequest @relation(fields: [procurementRequestId], references: [id], onDelete: Cascade)
+  price       Float   @default(0.30)
+  quality     Float   @default(0.25)
+  quantity    Float   @default(0.15)
+  delivery    Float   @default(0.10)
+  distance    Float   @default(0.10)
+  reliability Float   @default(0.10)
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Bidding ───────────────────────────────────────────────
+
+model Bid {
+  id                 String   @id @default(uuid())
+  procurementId      String
+  procurement        ProcurementRequest @relation(fields: [procurementId], references: [id])
+  farmerId           String
+  farmer             User     @relation("FarmerBids", fields: [farmerId], references: [id])
+  quantityKg         Float
+  pricePerKg         Float
+  grade              Grade
+  gradeRank          GradeRank
+  deliveryDate       DateTime
+  note               String?
+  status             BidStatus @default(SUBMITTED)
+  formStatus          String? // for compatibility; redundant but harmless
+  supplierId         String
+  distanceKm         Float?
+  farmLocation       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  images             BidImage[]
+  contracts          FarmerContract[]
+
+  @@index([procurementId])
+  @@index([farmerId])
+  @@index([status])
+}
+
+model BidImage {
+  id          String @id @default(uuid())
+  bidId       String
+  bid         Bid    @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  url         String
+  publicId    String?
+  createdAt   DateTime @default(now())
+}
+
+// ── Farmer Contract (one per selected farmer per procurement) ──
+
+model FarmerContract {
+  id               String           @id @default(uuid())
+  procurementId    String
+  procurement      ProcurementRequest @relation(fields: [procurementId], references: [id])
+  bidId            String
+  bid              Bid              @relation(fields: [bidId], references: [id])
+  farmerId         String
+  farmer           User             @relation("FarmerContracts", fields: [farmerId], references: [id])
+  supplierId       String
+  quantityKg       Float
+  pricePerKg       Float
+  grade            Grade
+  amount           Float
+  status           ContractStatus   @default(CREATED)
+  transport        TransportMode
+  deliveredQuantityKg Float         @default(0)
+  acceptedQuantityKg  Float         @default(0)
+  receivedAt       DateTime?
+  verifiedAt       DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  verifications    QualityVerification[]
+  inventoryItems   InventoryItem[]
+  payments         Payment[]
+
+  @@index([farmerId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+// ── Quality ───────────────────────────────────────────────
+
+model QualityVerification {
+  id            String             @id @default(uuid())
+  contractId    String
+  contract      FarmerContract     @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  verifierId    String             // supplier user
+  declaredGrade Grade
+  actualGrade   Grade?
+  outcome       VerificationOutcome @default(PENDING)
+  adjustedPriceKg Float?
+  notes         String?
+  verifiedAt    DateTime?
+  createdAt     DateTime           @default(now())
+}
+
+// ── Market Prices (cached in Redis, seeded from AGMARKNET/eNAM) ──
+
+model MarketPrice {
+  id         String   @id @default(uuid())
+  crop       String
+  unit       String   @default("kg")
+  currency   String   @default("INR")
+  current    Float
+  avg30d     Float?
+  min30d     Float?
+  max30d     Float?
+  source     String   @default("seed") // agmarknet | enam | seed
+  history    Json     @default("[]") // [{date, price}]
+  updatedAt  DateTime @updatedAt
+
+  @@index([crop])
+}
+
+// ── Inventory ─────────────────────────────────────────────
+
+model InventoryItem {
+  id           String        @id @default(uuid())
+  supplierId   String
+  contractId   String?
+  contract     FarmerContract? @relation(fields: [contractId], references: [id])
+  productId    String?
+  product      Product?      @relation(fields: [productId], references: [id])
+  cropName     String
+  grade        Grade
+  quantityKg   Float         @default(0)
+  reservedKg   Float         @default(0)
+  status       InventoryStatus @default(AVAILABLE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  listing      ProductListing?
+
+  @@index([supplierId])
+  @@index([status])
+}
+
+// ── E-commerce (B2C) ──────────────────────────────────────
+
+model ProductListing {
+  id            String      @id @default(uuid())
+  supplierId    String
+  inventoryId   String      @unique
+  inventory     InventoryItem @relation(fields: [inventoryId], references: [id])
+  productId     String?
+  product       Product?    @relation(fields: [productId], references: [id])
+  title         String
+  description   String?
+  pricePerKg    Float
+  unit          String      @default("kg")
+  images        Json        @default("[]")
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+
+  @@index([supplierId])
+  @@index([isActive])
+}
+
+model Cart {
+  id         String     @id @default(uuid())
+  customerId String     @unique
+  customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status     CartStatus @default(ACTIVE)
+  items      CartItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model CartItem {
+  id         String   @id @default(uuid())
+  cartId     String
+  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  listingId  String
+  listing    ProductListing @relation(fields: [listingId], references: [id])
+  quantityKg Float
+  unitPrice  Float
+  createdAt  DateTime @default(now())
+
+  @@unique([cartId, listingId])
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label      String?
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  pincode    String
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  customerOrders CustomerOrder[]
+}
+
+model CustomerOrder {
+  id             String        @id @default(uuid())
+  orderNumber    String        @unique
+  customerId     String
+  customer       User          @relation("CustomerOrders", fields: [customerId], references: [id])
+  supplierId     String
+  addressId      String
+  address        Address       @relation(fields: [addressId], references: [id])
+  items          OrderItem[]
+  subtotal       Float
+  tax            Float         @default(0)
+  deliveryFee    Float         @default(0)
+  total          Float
+  status         OrderStatus   @default(CREATED)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  payment        Payment?
+  deliveries     Delivery[]
+
+  @@index([customerId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String    @id @default(uuid())
+  orderId   String
+  order     CustomerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listingId String?
+  listing   ProductListing? @relation(fields: [listingId], references: [id])
+  title     String
+  quantityKg Float
+  unitPrice Float
+  amount    Float
+}
+
+// ── Payments ──────────────────────────────────────────────
+
+model Payment {
+  id              String        @id @default(uuid())
+  amount          Float
+  currency        String        @default("INR")
+  paymentMethod   PaymentMethod
+  status          PaymentStatus @default(CREATED)
+  razorpayOrderId String?       @unique
+  razorpayPaymentId String?     @unique
+  razorpaySignature String?
+  orderId         String?       @unique
+  order           CustomerOrder? @relation(fields: [orderId], references: [id])
+  contractId      String?       // for farmer payout
+  farmerContract  FarmerContract? @relation(fields: [contractId], references: [id])
+  metadata        Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// ── Delivery / Tracking ───────────────────────────────────
+
+model Delivery {
+  id          String      @id @default(uuid())
+  orderId     String
+  order       CustomerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      String      // SHIPPED / OUT_FOR_DELIVERY / DELIVERED / etc
+  carrier     String?
+  trackingNumber String?
+  events      Json        @default("[]") // [{status, at, location?}]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// ── Notifications (Postgres keeps durable record; FCM for push) ──
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+// ── Ratings ───────────────────────────────────────────────
+
+model Rating {
+  id        String   @id @default(uuid())
+  orderId   String?
+  raterId   String
+  rater     User     @relation("Rater", fields: [raterId], references: [id])
+  rateeId   String
+  ratee     User     @relation("Ratee", fields: [rateeId], references: [id])
+  stars     Float
+  comment   String?
+  dimensions Json?
+  createdAt DateTime @default(now())
+
+  @@index([rateeId])
+}
