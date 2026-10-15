@@ -1,7 +1,12 @@
 node_modules
 dist
+build
+.vite
 .env
-.env.local
-*.local
-npm-debug.log*
+.env.*
+!.env.example
+coverage
+*.log
 .DS_Store
+.vscode
+.idea
