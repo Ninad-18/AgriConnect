@@ -1,1 +1,24 @@
-system design case study.docx
+node_modules
+**/node_modules
+dist
+**/dist
+build
+**/build
+.vite
+**/.vite
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+*.swo
+coverage
+**/coverage
