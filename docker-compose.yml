@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: agriconnect-postgres
+    environment:
+      POSTGRES_USER: agriconnect
+      POSTGRES_PASSWORD: agriconnect
+      POSTGRES_DB: agriconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:7
+    container_name: agriconnect-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+  redis:
+    image: redis:7
+    container_name: agriconnect-redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: agriconnect-backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://agriconnect:agriconnect@postgres:5432/agriconnect?schema=public
+      MONGO_URL: mongodb://mongodb:27017/agriconnect
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: agriconnect-frontend
+    env_file: ./frontend/.env
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  mongodata:
