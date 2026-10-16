@@ -1,46 +1,47 @@
-Step 1 — Pick a database option (the critical one)
-Choose one:
+NEXT STEPS TO MAKE AGRICONNECT FULLY FUNCTIONAL
 
-Option A: Install Docker Desktop (easiest)
+1. ENVIRONMENT VARIABLES
+- Backend: backend\.env already exists. Fill the required values:
+  - JWT_SECRET: generate a long random string (e.g. 
+ode -e "require('crypto').randomBytes(32).toString('hex')")
+  - CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET (cloudinary.com)
+  - RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET (dashboard.razorpay.com, test mode)
+  - FIREBASE_SERVICE_ACCOUNT_PATH: optional for dev
+  - GOOGLE_MAPS_API_KEY: optional
 
-Download from https://www.docker.com/products/docker-desktop/ and install
-Sign in with a Docker Hub account
-Open Docker Desktop and start the engine
-Option B: Install natively (no Docker account)
+- Frontend: frontend\.env has VITE_API_BASE_URL=http://localhost:5000. Add VITE_RAZORPAY_KEY_ID if using Razorpay.
 
-PostgreSQL → postgresql.org/download (port 5432, user/pass/DB = agriconnect)
-MongoDB Community Server → mongodb.com/try/download/community
-Redis → redis.io/download (or Memurai on Windows)
-Tell me which option you pick and I'll continue with the rest. If you install Docker, I can run the compose commands for you.
+2. DATABASES (YOU NEED THESE RUNNING)
+Option A (Docker): docker compose up -d postgres mongodb redis
+Option B (Native): Start PostgreSQL (5432), MongoDB (27017), Redis (6379)
 
-Step 2 — Create the database schema
+3. CREATE SCHEMA + SEED DATA
 cd backend
-npx prisma db push      # creates all 23 tables from schema.prisma
-npm run prisma:seed     # demo users + market prices + catalogue
-Step 3 — Provide real API keys (in backend/.env)
-Minimum to run end-to-end:
+npx prisma db push
+npm run prisma:seed
 
-Key	Needed for
-JWT_SECRET	Change from placeholder → real auth
-CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET	Bid photos + product images (free Cloudinary account)
-RAZORPAY_KEY_ID/SECRET/WEBHOOK_SECRET (+ same key ID in frontend/.env)	Customer payments
-Optional until later: Firebase (FIREBASE_SERVICE_ACCOUNT_PATH), Google Maps.
+Demo users (password: password123):
+- farmer@agriconnect.in
+- supplier@agriconnect.in
+- customer@agriconnect.in
 
-Step 4 — Start both servers
-cd backend
-npm run dev              # API on :5000
+4. START SERVERS
+Terminal 1: cd backend && npm run dev  (API: http://localhost:5000)
+Terminal 2: cd frontend && npm run dev (UI:  http://localhost:5173, proxies /api -> :5000)
 
-# new terminal
-cd frontend
-npm run dev              # UI on :5173, proxies /api → :5000
-Step 5 — Smoke-test the flows
-Open http://localhost:5173, log in as the seeded users (password123), and verify:
+5. SMOKE TEST
+Supplier -> Create Procurement
+Farmer -> Submit Bid
+Supplier -> Accept Bids -> Contracts
+Receive + Quality Verify (ACCEPTED) -> Inventory
+Supplier -> Products -> Create listing
+Customer -> Marketplace -> Buy -> Checkout (Razorpay test) -> Order confirmed
 
-Supplier creates a procurement → farmer submits a bid → supplier accepts → contract created
-Supplier marks received → verifies quality (ACCEPTED) → stock appears in inventory
-Supplier lists inventory as a product → customer buys → Razorpay test mode payment → order confirms
-What I can do for you right now
-Step 2 (db push + seed) and Step 4 (start servers): automatic, once Step 1 is done
-Walk you through creating the Cloudinary/Razorpay keys step-by-step
-Want to start with Docker or native installs?
+6. ABOUT docker-compose.yml
+It defines postgres/mongodb/redis/backend/frontend. If you have NOT created those containers yet, running docker compose up -d will pull/build and create them. Keys/secrets in compose should never be real production secrets. You don't need to create containers manually � up does it.
 
+7. GITIGNORE FILES
+Add proper .gitignore files to avoid committing secrets/builds:
+- Root: ignore .env, node_modules, dist, build, .vscode, .DS_Store, *.log
+- backend: ignore dist, .env, node_modules, prisma/migrations/*.db (if any), coverage
+- frontend: ignore dist, .env, node_modules, coverage, .vite
