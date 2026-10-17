@@ -2,8 +2,7 @@ NEXT STEPS TO MAKE AGRICONNECT FULLY FUNCTIONAL
 
 1. ENVIRONMENT VARIABLES
 - Backend: backend\.env already exists. Fill the required values:
-  - JWT_SECRET: generate a long random string (e.g. 
-ode -e "require('crypto').randomBytes(32).toString('hex')")
+  - JWT_SECRET: generate a long random string (e.g. ode -e "require('crypto').randomBytes(32).toString('hex')")
   - CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET (cloudinary.com)
   - RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET (dashboard.razorpay.com, test mode)
   - FIREBASE_SERVICE_ACCOUNT_PATH: optional for dev
@@ -38,7 +37,7 @@ Supplier -> Products -> Create listing
 Customer -> Marketplace -> Buy -> Checkout (Razorpay test) -> Order confirmed
 
 6. ABOUT docker-compose.yml
-It defines postgres/mongodb/redis/backend/frontend. If you have NOT created those containers yet, running docker compose up -d will pull/build and create them. Keys/secrets in compose should never be real production secrets. You don't need to create containers manually — up does it.
+It defines postgres/mongodb/redis/backend/frontend. If you have NOT created those containers yet, running docker compose up -d will pull/build and create them. Keys/secrets in compose should never be real production secrets. You don't need to create containers manually ï¿½ up does it.
 
 7. GITIGNORE FILES
 Add proper .gitignore files to avoid committing secrets/builds:
