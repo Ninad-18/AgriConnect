@@ -1,145 +1,253 @@
 # AgriConnect
 **Empowering Farmers, Redefining Agricultural Procurement**
 
-A production-oriented agricultural procurement and e-commerce platform.
+A production-oriented agricultural procurement and e-commerce platform that connects **Farmers**, **Suppliers/Wholesalers**, and **Customers** through transparent bidding, quality verification, inventory management, and a B2C marketplace.
 
-AgriConnect solves the information-asymmetry problem between farmers and suppliers/middlemen by providing :
+## Table of Contents
+- [Overview](#overview)
+- [Documentation](#documentation)
+- [Roles](#roles)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Running with Docker (Recommended)](#running-with-docker-recommended)
+- [Running Natively (No Docker)](#running-natively-no-docker)
+- [Demo Credentials](#demo-credentials)
+- [Build & Typecheck](#build--typecheck)
+- [Core Workflows](#core-workflows)
+- [State Machines](#state-machines)
+- [Key Notes](#key-notes)
+- [Development Phases](#development-phases)
 
-1. Market price transparency
-2. Supplier-created procurement requirements (reverse procurement)
-3. Competitive open farmer bidding
-4. Quality information (farmer-declared grade + images)
-5. Smart bid ranking and allocation recommendations
-6. Separate contracts/orders for selected farmers
-7. Supplier inventory management
-8. A B2C e-commerce marketplace where suppliers sell acquired produce to customers
+## Overview
 
+AgriConnect solves the information asymmetry in agricultural supply chains by enabling:
 
-## Business Flow
-```
-Farmer → Supplier → Customer
-``` 
+1. **Market price transparency** � View and track crop market prices
+2. **Reverse procurement** � Suppliers post procurement requirements with quantity, grade, and deadline
+3. **Open competitive bidding** � Farmers bid transparently with price, quantity, grade, and delivery date
+4. **Smart bid ranking** � Explainable scoring to help suppliers shortlist (recommendation-only)
+5. **Quality verification** � Drives inventory ownership transfer after acceptance
+6. **Supplier inventory** � Verified produce becomes sellable stock
+7. **B2C marketplace** � Suppliers list inventory and customers buy directly
 
-- **B2B Procurement:** Farmers compete to fulfill supplier requirements through transparent, open bidding.
-- **B2C E-commerce:** Suppliers sell the produce they acquired from farmers through a normal e-commerce experience.
+## Documentation
+
+| File | Purpose |
+|---|---|
+| [
+ext_steps.txt](./next_steps.txt) | Step-by-step guide to get the app fully running locally |
+| [Explanation.md](./Explanation.md) | Detailed technical explanation (file roles, API keys, data flow, workflows, installed libs) |
+| [system_design.txt](./system_design.txt) | Complete system design case study (requirements, ERD summary, scaling, security, trade-offs) |
 
 ## Roles
 
-Exactly **three** user roles (no admin portal):
+Exactly **three** user roles (**no admin portal**):
 
-1. **Farmer** — discovers procurement opportunities, submits competitive bids, delivers produce
-2. **Supplier / Wholesaler** — creates procurement requirements, reviews & selects farmers, manages inventory, sells to customers
-3. **Customer** — browses and purchases produce in a normal e-commerce flow
+1. **Farmer** � Discover procurements, submit/update/withdraw bids (before deadline), manage contracts & deliveries
+2. **Supplier/Wholesaler** � Create procurements, review bids, accept bids, verify quality, manage inventory & product listings, handle deliveries
+3. **Customer** � Browse marketplace, add to cart, checkout, track orders
 
 ## Tech Stack
 
-| Layer         | Technology                                                  |
-|---------------|-------------------------------------------------------------|
-| Frontend      | React + TypeScript, Vite, Tailwind CSS, React Router, Axios |
-| Backend       | Node.js + Express + TypeScript                              |
-| Primary DB    | PostgreSQL + Prisma ORM                                     |
-| NoSQL DB      | MongoDB (flexible/AI/analytics data)                        |
-| Cache         | Redis (market prices, rate limiting, ephemeral data)        |
-| Auth          | JWT + bcrypt                                                |
-| Images        | Cloudinary                                                  |
-| Real-time     | Socket.IO                                                   |
-| Notifications | Firebase Cloud Messaging                                    |
-| Payments      | Razorpay (server-verified + webhooks)                       |
-| Maps          | Google Maps API                                             |
-| Market data   | AGMARKNET / eNAM                                            |
-| AI/ML         | Python + FastAPI (future enhancement)                       |
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18 + TypeScript, Vite 5, Tailwind CSS 3, React Router, React Hook Form, Zod, Axios, Sonner, Lucide React, Recharts, Socket.IO Client |
+| **Backend** | Node.js + Express 4 + TypeScript, Modular Monolith |
+| **Primary DB** | PostgreSQL 16 + Prisma ORM 5.22.0 (source of truth) |
+| **NoSQL DB** | MongoDB 7/8 + Mongoose 8.8.1 (audit/events/snapshots) |
+| **Cache** | Redis 7 + ioredis 5.4.1 (market prices, rate limiting) |
+| **Auth** | JWT (jsonwebtoken) + bcrypt |
+| **Images** | Cloudinary 2.5.1 |
+| **Real-time** | Socket.IO 4.8.1 (bid updates & notifications) |
+| **Notifications** | Firebase Cloud Messaging (firebase-admin 12.7.0 � optional in dev) |
+| **Payments** | Razorpay 2.9.4 (server-verified + signed webhooks, idempotent) |
+| **Validation** | Zod 3.23.8 (backend + frontend) |
+| **Dev Tools** | ts-node-dev, TypeScript 5.6.3, Vite, PostCSS, Autoprefixer |
 
 ## Architecture
 
-**Modular Monolith + Polyglot Persistence.**
+**Modular Monolith + Polyglot Persistence**
 
-PostgreSQL is the **source of truth** for all transactional data (users, profiles, procurements, bids, contracts, orders, inventory, products, payments, deliveries). MongoDB stores flexible/document data (AI results, event/activity docs, notification payloads, analytics). Redis caches market prices and frequently-accessed data. Payment verification is always server-side and idempotent.
+- **PostgreSQL** is the **source of truth** for transactional data (users, profiles, procurements, bids, contracts, quality, inventory, listings, cart, orders, payments, deliveries, notifications)
+- **MongoDB** stores flexible/document data (AI analysis, activity events, allocation snapshots, chat sessions, notification payloads)
+- **Redis** caches market prices (cache-aside) and supports rate limiting
+- **Socket.IO** pushes real-time updates to users/procurement rooms
+- **Payments** are always **server-side verified** via Razorpay webhooks with **idempotency** checks
 
-The backend is one deployable application internally divided into clear modules:
-`auth, farmers, suppliers, customers, procurement, bidding, allocation, quality, inventory, products, orders, payments, notifications, market-prices, tracking`.
+All API responses follow the envelope: { success: true, data: <value> }. The frontend services unwrap es.data.data.
 
 ## Project Structure
 
-```
-├── backend/               # Node.js + Express + TypeScript
-│   └── src/
-│       ├── config/
-│       ├── middleware/
-│       ├── utils/
-│       ├── modules/
-│       │   ├── auth/
-│       │   ├── farmers/
-│       │   ├── suppliers/
-│       │   ├── customers/
-│       │   ├── procurement/
-│       │   ├── bidding/
-│       │   ├── allocation/
-│       │   ├── quality/
-│       │   ├── inventory/
-│       │   ├── products/
-│       │   ├── orders/
-│       │   ├── payments/
-│       │   ├── notifications/
-│       │   ├── market-prices/
-│       │   └── tracking/
-│       ├── app.ts
-│       └── server.ts
-└── frontend/              # React + TypeScript + Vite
-    └── src/
-        ├── components/
-        ├── pages/
-        │   ├── auth/
-        │   ├── farmer/
-        │   ├── supplier/
-        │   └── customer/
-        ├── services/
-        ├── hooks/
-        ├── context/
-        ├── types/
-        ├── utils/
-        ├── routes/
-        └── App.tsx
-```
+`	ext
+app/
++-- README.md
++-- Explanation.md
++-- system_design.txt
++-- next_steps.txt
++-- docker-compose.yml
++-- backend/        # Express + TS API (modular: auth, farmers, suppliers, customers, procurement, bidding, allocation, quality, inventory, products, orders, payments, notifications, market-prices, tracking)
++-- frontend/       # React + Vite + TS + Tailwind
++-- prisma/         # schema.prisma + seed.ts (inside backend/)
+`
+
+See [Explanation.md](./Explanation.md) for the full, detailed file tree with per-file roles.
+
+## Quick Start
+
+1. **Read** [
+ext_steps.txt](./next_steps.txt) for the exact commands
+2. **Set up env** � Fill ackend/.env and rontend/.env (see [Environment Variables](#environment-variables))
+3. **Start databases** � Use Docker ([section below](#running-with-docker-recommended)) or run Postgres/MongoDB/Redis natively
+4. **Apply schema + seed** � cd backend && npx prisma db push && npm run prisma:seed
+5. **Run apps** � Backend (
+pm run dev on :5000), Frontend (
+pm run dev on :5173)
+6. **Login** with demo credentials
+
+## Environment Variables
+
+### Backend (ackend/.env)
+| Variable | Required | Notes |
+|---|---|---|
+| DATABASE_URL | **Yes** | postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public |
+| MONGO_URL | **Yes** | mongodb://localhost:27017/agriconnect |
+| REDIS_URL | **Yes** | edis://localhost:6379 |
+| JWT_SECRET | **Yes** | Generate a long random string (never commit real secrets) |
+| CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET | For image uploads | Get from [cloudinary.com](https://cloudinary.com) |
+| RAZORPAY_KEY_ID/KEY_SECRET/WEBHOOK_SECRET | For payments | Get from [dashboard.razorpay.com](https://dashboard.razorpay.com) (use Test keys in dev) |
+| FIREBASE_SERVICE_ACCOUNT_PATH | Optional | For FCM push notifications |
+| GOOGLE_MAPS_API_KEY | Optional | For maps/distance features |
+
+### Frontend (rontend/.env)
+`env
+VITE_API_BASE_URL=http://localhost:5000
+VITE_RAZORPAY_KEY_ID=   # same as backend RAZORPAY_KEY_ID if testing payments
+`
+
+> .env files are **gitignored**. Never commit real secrets. Only .env.example is tracked.
+
+## Running with Docker (Recommended)
+
+If Docker Desktop is installed and running:
+
+`ash
+# From project root
+docker compose up -d postgres mongodb redis
+# wait a few seconds for DBs to be ready
+
+# Apply schema + seed (from host, with DBs exposed)
+cd backend
+npx prisma db push
+npm run prisma:seed
+
+# Start full stack
+docker compose up -d backend frontend
+`
+
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend API: [http://localhost:5000](http://localhost:5000)
+- Health: [http://localhost:5000/health](http://localhost:5000/health)
+
+**Note:** docker-compose.yml contains **no real secrets** � it uses local dev defaults and reads from .env files via env_file. It's safe to commit to GitHub.
+
+## Running Natively (No Docker)
+
+1. Install & start **PostgreSQL**, **MongoDB**, **Redis** on localhost:5432, 27017, 6379
+2. Update ackend/.env if your credentials differ
+3. Run:
+
+`ash
+# Terminal 1 - Backend
+cd backend
+npm install  # already done if node_modules present
+npx prisma db push
+npm run prisma:seed
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+npm install  # already done if node_modules present
+npm run dev
+`
+
+## Demo Credentials
+
+Seeded with password123:
+
+| Role | Email | Name |
+|---|---|---|
+| **Farmer** | armer@agriconnect.in | Ramesh Patil |
+| **Supplier** | supplier@agriconnect.in | GreenMart Wholesale |
+| **Customer** | customer@agriconnect.in | Priya Sharma |
+
+## Build & Typecheck
+
+Both projects build clean in this repo:
+
+`ash
+# Backend
+cd backend
+npm run typecheck  # tsc --noEmit
+npm run build      # builds to dist/
+
+# Frontend
+cd frontend
+npm run typecheck  # tsc --noEmit
+npm run build      # builds to dist/ (vite)
+`
+
+## Core Workflows
+
+### B2B: Procurement ? Bidding ? Contracts
+1. **Supplier** creates procurement (OPEN) with quantity, min grade, bid deadline
+2. **Farmers** submit bids (open bidding � visible to others until deadline)
+3. **Supplier** closes bidding ? views **Smart Allocation** recommendations (ranked by score)
+4. **Supplier** accepts 1+ bids ? **FarmerContract(s)** created in a transaction
+5. **Farmer delivers** ? Supplier marks received ? **Quality Verification** (ACCEPTED/ADJUSTED/REJECTED/DISPUTED)
+6. **ACCEPTED/ADJUSTED** ? produce moved to **Supplier Inventory** (ownership transfer). **REJECTED** ? stays with farmer (reliability adjusted). **FAILED delivery** ? undelivered qty returns to procurement, bidding reopens for remaining qty
+
+### B2C: Inventory ? Listings ? Orders
+1. **Supplier** creates **ProductListing** from verified inventory
+2. **Customer** browses marketplace, adds to cart, proceeds to checkout
+3. **Checkout** creates order (PAYMENT_PENDING) and **atomically reserves inventory**
+4. **Razorpay** � Backend creates Razorpay order ? customer pays ? **signed webhook** confirms (CAPTURED, idempotent) ? order becomes CONFIRMED and stock decremented
+5. **Supplier** advances order status (PROCESSING ? PACKED ? SHIPPED ? OUT_FOR_DELIVERY ? DELIVERED); **Tracking** page shows events
+
+### Smart Allocation (Recommendation-only)
+Default weights: **Price 30%**, **Quality 25%**, **Quantity 15%**, **Delivery 10%**, **Distance 10%**, **Reliability 10%**. Supplier always has the final decision.
+
+## State Machines
+
+- **Procurement:** DRAFT ? OPEN ? BIDDING_CLOSED ? UNDER_SELECTION ? PARTIALLY_FULFILLED ? FULLY_ALLOCATED ? IN_DELIVERY ? COMPLETED
+- **Bid:** SUBMITTED ? ACTIVE ? ACCEPTED | REJECTED | WITHDRAWN | EXPIRED
+- **Farmer Contract:** CREATED ? ACCEPTED ? IN_DELIVERY ? RECEIVED ? QUALITY_VERIFIED ? COMPLETED (+ LATE ? FAILED)
+- **Customer Order:** CREATED ? PAYMENT_PENDING ? CONFIRMED ? PROCESSING ? PACKED ? SHIPPED ? OUT_FOR_DELIVERY ? DELIVERED
+- **Payment:** CREATED ? CAPTURED (webhook-driven, idempotent)
+
+## Key Notes
+
+- **Exactly 3 roles** � FARMER, SUPPLIER, CUSTOMER. No admin role/portal.
+- **Source of truth** � PostgreSQL via Prisma. MongoDB is for flexible/audit data. Redis is for cache.
+- **Payments are secure** � Server creates Razorpay order; only **signed webhook** marks as captured. Idempotent by event/order keys. Never trust frontend success.
+- **Open bidding** � Transparent until bid deadline. Modify/withdraw only before deadline.
+- **Ownership** � Stays with farmer until quality verification result is ACCEPTED/ADJUSTED.
+- **Response envelope** � All backend endpoints return { success: true, data: ... }; frontend unwraps es.data.data.
+- **Route ordering note** � GET /market-prices/history/:crop is registered after GET /market-prices/:crop; be mindful if adding similar param routes.
+- **Git hygiene** � .env, 
+ode_modules, dist, .vite, logs are gitignored. docker-compose.yml is safe to commit.
 
 ## Development Phases
 
-1. **Auth & Users** — registration, login, JWT, roles, profiles
-2. **Procurement** — supplier requirements, farmer discovery, notifications, open bidding, bid deadlines
-3. **Smart procurement** — bid ranking, smart allocation, supplier recommendation screen, manual selection, multi-farmer acceptance
-4. **Quality & Inventory** — image upload, grade, quality verification, farmer contracts, supplier inventory
-5. **E-commerce** — product listings, search, cart, checkout, customer orders
-6. **Payments** — Razorpay server-side verification + webhooks, refunds/cancellation
-7. **Notifications & real-time** — FCM, Socket.IO
-8. **Market prices** — government data source, normalization, history, Redis caching
-9. **Advanced** — AI quality assessment, optimization, maps, logistics
-10. **Production** — Docker, CI/CD, monitoring, logging, backups, scaling
-
-## Core State Machines
-
-- **Procurement:** `DRAFT → OPEN → BIDDING_CLOSED → UNDER_SELECTION → PARTIALLY_FULFILLED → FULLY_ALLOCATED → IN_DELIVERY → COMPLETED`
-- **Bid:** `SUBMITTED → ACTIVE → ACCEPTED | REJECTED | WITHDRAWN | EXPIRED`
-- **Farmer contract:** `CREATED → ACCEPTED → IN_DELIVERY → RECEIVED → QUALITY_VERIFIED → COMPLETED`
-- **Customer order:** `CREATED → PAYMENT_PENDING → CONFIRMED → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`
-
-
-## Getting Started  --->
-### Backend
-
-```bash
-cd backend
-cp .env.example .env   # configure your environment (PostgreSQL, MongoDB, Redis, JWT, Razorpay)
-npm install
-npx prisma migrate dev
-npm run dev
-```
-
-### Frontend
-
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Requires PostgreSQL, MongoDB, and Redis running locally (see `backend/docker-compose.yml`).
+1. **Auth & Users** � Registration, login, JWT, roles, profiles
+2. **Procurement** � Create requirements, discover, open bidding, deadlines
+3. **Smart Procurement** � Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
+4. **Quality & Inventory** � Image upload, grade, quality verification, contracts, inventory
+5. **E-commerce** � Listings, search, cart, checkout, customer orders
+6. **Payments** � Razorpay server-side + webhooks + idempotency
+7. **Notifications & Real-time** � FCM (optional), Socket.IO
+8. **Market Prices** � Seed + Redis cache-aside
+9. **Advanced** � AI quality, maps, logistics (scaffolded)
+10. **Production** � Docker, CI/CD, monitoring, logging, backups, scaling
