@@ -61,18 +61,18 @@ Out-of-scope: admin role, microservices now, multi-tenant, live GPS.
 3. CAPACITY ESTIMATION (MVP baseline)
 
 3.1. Users
-- Expected registered: ~1k–10k
-- Concurrent: ~50–200
+- Expected registered: ~1kï¿½10k
+- Concurrent: ~50ï¿½200
 - Peak: small-scale pilot
 
 3.2. RPS (Requests Per Second)
-- Auth/light: 10–30
-- Bidding/checkout: 5–20 ? total ~20–50 RPS (MVP)
+- Auth/light: 10ï¿½30
+- Bidding/checkout: 5ï¿½20 ? total ~20ï¿½50 RPS (MVP)
 Sufficient for single Node instance.
 
 3.3. Storage
 Postgres: users/profiles/contracts/orders ~ few GB max. 
-Mongo: logs/snapshots ~ MB–GB over time.
+Mongo: logs/snapshots ~ MBï¿½GB over time.
 Redis: in-memory small.
 
 3.4. Media
@@ -168,7 +168,7 @@ FKs + unique where logical (emails unique). Composite indexes on frequent filter
 
 8.1. Auth + RBAC: JWT verify, role guard
 8.2. Procurement/Bidding: deadline checks, grade constraints, open visibility
-8.3. Smart Allocation: weighted scoring (price 30%, quality 25%, qty 15%, delivery 10%, distance 10%, reliability 10%). Normalize, compute 0–1, weighted sum. Recommendation only.
+8.3. Smart Allocation: weighted scoring (price 30%, quality 25%, qty 15%, delivery 10%, distance 10%, reliability 10%). Normalize, compute 0ï¿½1, weighted sum. Recommendation only.
 8.4. Quality: receive -> verify -> ownership: ACCEPTED/ADJUSTED moves qty to supplier inventory; REJECTED stays with farmer
 8.5. Inventory: tracks stock + reservedKg (atomic)
 8.6. Orders/Payments: checkout reserves -> Razorpay create -> webhook verifies signature -> CAPTURED -> confirm order + decrement
@@ -209,7 +209,7 @@ Heavy I/O (images) async. Webhooks async processing. Future: BullMQ + Redis queu
 Cloudinary CDN for images.
 
 10.6. Bottlenecks
-DB writes on hot flows (bidding bursts) — can add queues/read replicas later.
+DB writes on hot flows (bidding bursts) ï¿½ can add queues/read replicas later.
 
 11. RELIABILITY & FAILURE HANDLING
 
@@ -273,16 +273,16 @@ morgan dev. Prod: structured logs (winston/pino), health endpoint /health, metri
 
 14. TRADE-OFFS & DESIGN DECISIONS
 
-| Decision | Options | Chosen | Rationale | Pros | Cons | Reconsider |
-|---|---|---|---|---|---|---|
+| Decision                  | Options | Chosen | Rationale | Pros | Cons | Reconsider |
+|---------------------------|---|---|---|---|---|---|
 | Monolith vs Microservices | Modular monolith / Microservices | Modular monolith | MVP scope, simplicity, transactions, lower ops | Fast dev, easy to reason, atomicity | Less isolated at scale | If team grows + domains decouple heavily |
-| Polyglot stores | Postgres only vs Postgres+Mongo+Redis | Polyglot | Right tool: OLTP, flexible audit, cache | Clear separation | Slight complexity | Could consolidate later |
-| Smart allocation | Auto-assign vs Recommendation-only | Recommendation-only | Supplier control + trust | Human-in-loop, safe | Less automated | If rules trusted + audit mature |
-| Payment flow | Front-direct vs Server+webhook | Server+webhook (idempotent) | Security/compliance | Never trust frontend | Webhook handling needed | Keep |
-| Inventory model | Decrement on order vs Reserve+decrement on capture | Reserve + decrement on capture | Prevents oversell on pending payments | Correct for Razorpay flow | State complexity | Keep |
-| Real-time | Polling vs Socket.IO | Socket.IO | Low latency for bidding | Live UX | Best-effort (not guaranteed) | Keep with DB source-of-truth |
-| Bidding visibility | Open vs Blind | Open | Transparency | Fairness | Strategic | Can toggle per procurement |
-| Ownership transfer | On contract vs On quality verified | On quality verified | Correctness | Avoids transferring bad stock | Extra step | Keep |
+| Polyglot stores           | Postgres only vs Postgres+Mongo+Redis | Polyglot | Right tool: OLTP, flexible audit, cache | Clear separation | Slight complexity | Could consolidate later |
+| Smart allocation          | Auto-assign vs Recommendation-only | Recommendation-only | Supplier control + trust | Human-in-loop, safe | Less automated | If rules trusted + audit mature |
+| Payment flow              | Front-direct vs Server+webhook | Server+webhook (idempotent) | Security/compliance | Never trust frontend | Webhook handling needed | Keep |
+| Inventory model           | Decrement on order vs Reserve+decrement on capture | Reserve + decrement on capture | Prevents oversell on pending payments | Correct for Razorpay flow | State complexity | Keep |
+| Real-time                 | Polling vs Socket.IO | Socket.IO | Low latency for bidding | Live UX | Best-effort (not guaranteed) | Keep with DB source-of-truth |
+| Bidding visibility        | Open vs Blind | Open | Transparency | Fairness | Strategic | Can toggle per procurement |
+| Ownership transfer        | On contract vs On quality verified | On quality verified | Correctness | Avoids transferring bad stock | Extra step | Keep |
 
 15. FUTURE IMPROVEMENTS
 
