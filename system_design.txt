@@ -52,7 +52,7 @@ Out-of-scope (MVP): admin panel, multi-supplier cart, GPS live tracking, AI auto
 - Extensibility: modular monolith
 
 2.3. User Roles
-FARMER | SUPPLIER | CUSTOMER (exactly 3)
+FARMER   |   SUPPLIER   |   CUSTOMER (exactly 3)
 
 2.4. Constraints & Out-of-Scope
 Constraints: Node v22, TS strict, single API origin in dev. 
@@ -61,18 +61,18 @@ Out-of-scope: admin role, microservices now, multi-tenant, live GPS.
 3. CAPACITY ESTIMATION (MVP baseline)
 
 3.1. Users
-- Expected registered: ~1k�10k
-- Concurrent: ~50�200
+- Expected registered: ~1k - 10k
+- Concurrent: ~50 - 200
 - Peak: small-scale pilot
 
 3.2. RPS (Requests Per Second)
-- Auth/light: 10�30
-- Bidding/checkout: 5�20 ? total ~20�50 RPS (MVP)
+- Auth/light: 10 - 30
+- Bidding/checkout: 5 - 20 ? total ~20 - 50 RPS (MVP)
 Sufficient for single Node instance.
 
 3.3. Storage
 Postgres: users/profiles/contracts/orders ~ few GB max. 
-Mongo: logs/snapshots ~ MB�GB over time.
+Mongo: logs/snapshots ~ MB - GB over time.
 Redis: in-memory small.
 
 3.4. Media
@@ -209,7 +209,7 @@ Heavy I/O (images) async. Webhooks async processing. Future: BullMQ + Redis queu
 Cloudinary CDN for images.
 
 10.6. Bottlenecks
-DB writes on hot flows (bidding bursts) � can add queues/read replicas later.
+DB writes on hot flows (bidding bursts) -  can add queues/read replicas later.
 
 11. RELIABILITY & FAILURE HANDLING
 
