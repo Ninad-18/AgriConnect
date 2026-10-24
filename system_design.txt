@@ -273,16 +273,16 @@ morgan dev. Prod: structured logs (winston/pino), health endpoint /health, metri
 
 14. TRADE-OFFS & DESIGN DECISIONS
 
-| Decision                  | Options                                            | Chosen                         | Rationale | Pros | Cons | Reconsider |
-|---------------------------|----------------------------------------------------|--------------------------------|---|---|---|---|
+| Decision                  | Options                                            | Chosen                         | Rationale                                      | Pros | Cons | Reconsider |
+|---------------------------|----------------------------------------------------|--------------------------------|------------------------------------------------|---|---|---|
 | Monolith vs Microservices | Modular monolith / Microservices                   | Modular monolith               | MVP scope, simplicity, transactions, lower ops | Fast dev, easy to reason, atomicity | Less isolated at scale | If team grows + domains decouple heavily |
-| Polyglot stores           | Postgres only vs Postgres+Mongo+Redis              | Polyglot                       | Right tool: OLTP, flexible audit, cache | Clear separation | Slight complexity | Could consolidate later |
-| Smart allocation          | Auto-assign vs Recommendation-only                 | Recommendation-only            | Supplier control + trust | Human-in-loop, safe | Less automated | If rules trusted + audit mature |
-| Payment flow              | Front-direct vs Server+webhook                     | Server+webhook (idempotent)    | Security/compliance | Never trust frontend | Webhook handling needed | Keep |
-| Inventory model           | Decrement on order vs Reserve+decrement on capture | Reserve + decrement on capture | Prevents oversell on pending payments | Correct for Razorpay flow | State complexity | Keep |
-| Real-time                 | Polling vs Socket.IO                               | Socket.IO                      | Low latency for bidding | Live UX | Best-effort (not guaranteed) | Keep with DB source-of-truth |
-| Bidding visibility        | Open vs Blind                                      | Open                           | Transparency | Fairness | Strategic | Can toggle per procurement |
-| Ownership transfer        | On contract vs On quality verified                 | On quality verified            | Correctness | Avoids transferring bad stock | Extra step | Keep |
+| Polyglot stores           | Postgres only vs Postgres+Mongo+Redis              | Polyglot                       | Right tool: OLTP, flexible audit, cache        | Clear separation | Slight complexity | Could consolidate later |
+| Smart allocation          | Auto-assign vs Recommendation-only                 | Recommendation-only            | Supplier control + trust                       | Human-in-loop, safe | Less automated | If rules trusted + audit mature |
+| Payment flow              | Front-direct vs Server+webhook                     | Server+webhook (idempotent)    | Security/compliance                            | Never trust frontend | Webhook handling needed | Keep |
+| Inventory model           | Decrement on order vs Reserve+decrement on capture | Reserve + decrement on capture | Prevents oversell on pending payments          | Correct for Razorpay flow | State complexity | Keep |
+| Real-time                 | Polling vs Socket.IO                               | Socket.IO                      | Low latency for bidding                        | Live UX | Best-effort (not guaranteed) | Keep with DB source-of-truth |
+| Bidding visibility        | Open vs Blind                                      | Open                           | Transparency                                   | Fairness | Strategic | Can toggle per procurement |
+| Ownership transfer        | On contract vs On quality verified                 | On quality verified            | Correctness                                    | Avoids transferring bad stock | Extra step | Keep |
 
 15. FUTURE IMPROVEMENTS
 
