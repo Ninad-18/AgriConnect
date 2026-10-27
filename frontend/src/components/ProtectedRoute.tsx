@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import type { Role } from "@/types";
 
@@ -10,11 +11,12 @@ const roleHome: Record<Role, string> = {
 
 export default function ProtectedRoute({ role }: { role?: Role }) {
   const { user, loading } = useAuth();
+  const { t } = useTranslation("common");
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16 text-sm text-stone-500">
-        Loading...
+        {t("actions.loading", { defaultValue: "Loading..." })}
       </div>
     );
   }

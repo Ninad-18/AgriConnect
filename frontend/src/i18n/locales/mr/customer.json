@@ -1,0 +1,73 @@
+{
+  "marketplace": {
+    "title": "ताजा शेतमाल बाजारपेठ",
+    "description": "पडताळणी झालेल्या पुरवठादारांकडून थेट शेतात पिकवलेला, प्रतवारी केलेला ताजा शेतमाल.",
+    "searchPlaceholder": "शेतमाल शोधा...",
+    "allGrades": "सर्व ग्रेड",
+    "emptyTitle": "कोणतेही उत्पादन आढळले नाही",
+    "emptyHint": "पुरवठादारांकडे साठा उपलब्ध झाल्यानंतर येथे उत्पादने दिसतील.",
+    "available": "{{qty}} उपलब्ध",
+    "addToCart": "कार्टमध्ये जोडा",
+    "addedToCart": "कार्टमध्ये जोडले"
+  },
+  "productDetail": {
+    "backToMarketplace": "बाजारपेठेत परत जा",
+    "notFound": "उत्पादन सापडले नाही.",
+    "available": "{{qty}} उपलब्ध",
+    "quantityLabel": "प्रमाण (किलो)",
+    "total": "एकूण:",
+    "adding": "जोडत आहे...",
+    "addToCart": "कार्टमध्ये जोडा"
+  },
+  "cart": {
+    "title": "आपली कार्ट",
+    "clearCart": "कार्ट रिकामी करा",
+    "emptyTitle": "आपली कार्ट रिकामी आहे",
+    "emptyHint": "ताजा शेतमाल जोडण्यासाठी बाजारपेठ पहा.",
+    "item": "वस्तू",
+    "remove": "काढून टाका",
+    "orderSummary": "ऑर्डरचा सारांश",
+    "subtotal": "उपएकूण ({{qty}})",
+    "delivery": "डिलिव्हरी शुल्क",
+    "free": "मोफत (FREE)",
+    "total": "एकूण रक्कम",
+    "loginNotice": "चेकआउट करण्यासाठी आणि ऑर्डर मिळवण्यासाठी लॉगिन करा.",
+    "proceedCheckout": "चेकआउटसाठी पुढे जा",
+    "removedSuccess": "कार्टमधून काढून टाकले",
+    "clearedSuccess": "कार्ट रिकामी केली"
+  },
+  "checkout": {
+    "title": "चेकआउट",
+    "description": "पत्ता निवडा आणि सुरक्षित पैसे भरा.",
+    "emptyTitle": "चेकआउटसाठी काहीही नाही",
+    "emptyHint": "आपली कार्ट रिकामी आहे.",
+    "browseMarketplace": "बाजारपेठ पहा",
+    "deliveryAddress": "डिलिव्हरीचा पत्ता",
+    "noSavedAddresses": "अद्याप कोणताही जतन केलेला पत्ता नाही.",
+    "defaultBadge": "डीफॉल्ट",
+    "addNewAddress": "+ नवीन पत्ता जोडा",
+    "addressLabel": "लेबल (उदा. घर, कार्यालय)",
+    "phoneLabel": "फोन नंबर",
+    "line1Label": "पत्ता ओळ १",
+    "cityLabel": "शहर / गाव",
+    "stateLabel": "राज्य",
+    "pincodeLabel": "पिन कोड",
+    "saveAddress": "पत्ता जतन करा",
+    "addressSavedSuccess": "पत्ता जतन केला",
+    "selectAddressError": "कृपया डिलिव्हरीचा पत्ता निवडा",
+    "payBtn": "{{amount}} भरा",
+    "processing": "प्रक्रिया सुरू आहे...",
+    "orderCreatedSuccess": "ऑर्डर नोंदवली गेली",
+    "razorpayWarning": "रेझरपे की कॉन्फिगर केलेली नाही — ऑर्डर 'पैसे बाकी' स्थितीत तयार होईल.",
+    "gatewayNotConfigured": "पेमेंट गेटवे कॉन्फिगर केलेले नाही. आपली ऑर्डर पैसे प्रलंबित म्हणून नोंदवली आहे.",
+    "paymentReceived": "पैसे प्राप्त झाले. ऑर्डरची पुष्टी होत आहे..."
+  },
+  "orders": {
+    "title": "माझ्या ऑर्डर्स",
+    "shopMore": "अधिक खरेदी करा",
+    "emptyTitle": "अद्याप ऑर्डर्स नाहीत",
+    "emptyHint": "आपण दिलेल्या ऑर्डर्सची थेट माहिती येथे दिसेल.",
+    "itemsCount": "{{count}} वस्तू",
+    "paymentLabel": "पेमेंट स्थिती:"
+  }
+}

@@ -13,8 +13,8 @@ export default {
         cream: "#FAFAFA",
       },
       fontFamily: {
-        sans: ["Manrope", "system-ui", "sans-serif"],
-        head: ["Cabinet Grotesk", "Manrope", "sans-serif"],
+        sans: ["Manrope", "Noto Sans Devanagari", "system-ui", "sans-serif"],
+        head: ["Cabinet Grotesk", "Noto Sans Devanagari", "Manrope", "sans-serif"],
       },
     },
   },

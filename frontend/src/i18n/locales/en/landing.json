@@ -1,0 +1,52 @@
+{
+  "badge": "Fresh from farm to fork",
+  "headline": "Connecting farms, procurement and customers —",
+  "headlineHighlight": "end to end.",
+  "subhead": "AgriConnect digitises the entire agricultural value chain: transparent open bidding, smart supplier allocation, graded produce commerce, and live market intelligence — all in one platform.",
+  "ctaDashboard": "Go to my dashboard",
+  "ctaGetStarted": "Get started free",
+  "ctaLogin": "Login",
+  "snapshot": {
+    "title": "Live market snapshot",
+    "updated": "Updated today",
+    "crops": {
+      "wheat": "Wheat",
+      "tomato": "Tomato",
+      "onion": "Onion",
+      "rice": "Rice (Basmati)"
+    }
+  },
+  "features": {
+    "smartBidding": {
+      "title": "Smart Farmer Bidding",
+      "desc": "Farmers bid openly on verified procurement requests with transparent rankings powered by our smart allocation engine."
+    },
+    "b2b": {
+      "title": "B2B Procurement & Logistics",
+      "desc": "Suppliers manage multi-farmer contracts, deliveries, and quality verification with a full audit trail."
+    },
+    "marketplace": {
+      "title": "Graded Produce Marketplace",
+      "desc": "Customers buy farm-fresh, graded produce directly from suppliers with live inventory and doorstep delivery."
+    },
+    "prices": {
+      "title": "Live Market Prices",
+      "desc": "Real-time and historical trends from AGMARKNET & eNAM help farmers and suppliers price with confidence."
+    }
+  },
+  "rolesSection": {
+    "title": "Meet the marketplace",
+    "farmers": {
+      "title": "Farmers",
+      "desc": "Bid on live demands, win fair contracts, get paid on time."
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "desc": "Launch procurements, rank bids smartly, manage deliveries & inventory."
+    },
+    "customers": {
+      "title": "Customers",
+      "desc": "Shop graded farm produce with transparent origin."
+    }
+  }
+}

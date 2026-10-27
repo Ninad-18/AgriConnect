@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchNotifications, markAllRead, markRead } from "@/services/notifications";
 import type { Notification } from "@/types";
 import { timeAgo } from "@/lib/format";
@@ -7,6 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { classNames } from "@/lib/format";
 
 export default function Notifications() {
+  const { t } = useTranslation(["shared", "common"]);
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,15 +36,22 @@ export default function Notifications() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <PageHeader
-        title="Notifications"
+        title={t("notifications.title", { defaultValue: "Notifications" })}
         actions={
           items.some((n) => !n.read) ? (
-            <button className="btn-secondary !py-1.5" onClick={onReadAll}>Mark all read</button>
+            <button className="btn-secondary !py-1.5" onClick={onReadAll}>
+              {t("notifications.markAllRead", { defaultValue: "Mark all read" })}
+            </button>
           ) : undefined
         }
       />
       {items.length === 0 ? (
-        <EmptyState title="No notifications" hint="Bid updates, contract news and order alerts appear here." />
+        <EmptyState
+          title={t("notifications.emptyTitle", { defaultValue: "No notifications" })}
+          hint={t("notifications.emptyHint", {
+            defaultValue: "Bid updates, contract news and order alerts appear here.",
+          })}
+        />
       ) : (
         <div className="space-y-2">
           {items.map((n) => (
@@ -59,7 +68,11 @@ export default function Notifications() {
                 <span className="whitespace-nowrap text-xs text-stone-400">{timeAgo(n.createdAt)}</span>
               </div>
               {n.body && <p className="mt-1 text-sm text-stone-500">{n.body}</p>}
-              {!n.read && <span className="badge mt-2 bg-forest text-white">New</span>}
+              {!n.read && (
+                <span className="badge mt-2 bg-forest text-white">
+                  {t("notifications.newBadge", { defaultValue: "New" })}
+                </span>
+              )}
             </button>
           ))}
         </div>
