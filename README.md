@@ -25,30 +25,30 @@ A production-oriented agricultural procurement and e-commerce platform that conn
 
 AgriConnect solves the information asymmetry in agricultural supply chains by enabling:
 
-1. **Market price transparency** – View and track crop market prices
-2. **Reverse procurement** – Suppliers post procurement requirements with quantity, grade, and deadline
-3. **Open competitive bidding** – Farmers bid transparently with price, quantity, grade, and delivery date
-4. **Smart bid ranking** – Explainable scoring to help suppliers shortlist (recommendation-only)
-5. **Quality verification** – Drives inventory ownership transfer after acceptance
-6. **Supplier inventory** – Verified produce becomes sellable stock
-7. **B2C marketplace** – Suppliers list inventory and customers buy directly
+1. **Market price transparency** ï¿½ View and track crop market prices
+2. **Reverse procurement** ï¿½ Suppliers post procurement requirements with quantity, grade, and deadline
+3. **Open competitive bidding** ï¿½ Farmers bid transparently with price, quantity, grade, and delivery date
+4. **Smart bid ranking** ï¿½ Explainable scoring to help suppliers shortlist (recommendation-only)
+5. **Quality verification** ï¿½ Drives inventory ownership transfer after acceptance
+6. **Supplier inventory** ï¿½ Verified produce becomes sellable stock
+7. **B2C marketplace** ï¿½ Suppliers list inventory and customers buy directly
 
 ## Documentation
 
 | File | Purpose |
-|---|---|
+|------------------------------------------|-------------------------------------------------|
 | [
-ext_steps.txt](./next_steps.txt) | Step-by-step guide to get the app fully running locally |
-| [Explanation.md](./Explanation.md) | Detailed technical explanation (file roles, API keys, data flow, workflows, installed libs) |
-| [system_design.txt](./system_design.txt) | Complete system design case study (requirements, ERD summary, scaling, security, trade-offs) |
+ext_steps.txt](./next_steps.txt)           | Step-by-step guide to get the app fully running locally                                               |
+| [Explanation.md](./Explanation.md)       | Detailed technical explanation (file roles, API keys, data flow, workflows, installed libs)           |
+| [system_design.txt](./system_design.txt) | Complete system design case study (requirements, ERD summary, scaling, security, trade-offs)           |
 
 ## Roles
 
 Exactly **three** user roles (**no admin portal**):
 
-1. **Farmer** – Discover procurements, submit/update/withdraw bids (before deadline), manage contracts & deliveries
-2. **Supplier/Wholesaler** – Create procurements, review bids, accept bids, verify quality, manage inventory & product listings, handle deliveries
-3. **Customer** – Browse marketplace, add to cart, checkout, track orders
+1. **Farmer** ï¿½ Discover procurements, submit/update/withdraw bids (before deadline), manage contracts & deliveries
+2. **Supplier/Wholesaler** ï¿½ Create procurements, review bids, accept bids, verify quality, manage inventory & product listings, handle deliveries
+3. **Customer** ï¿½ Browse marketplace, add to cart, checkout, track orders
 
 ## Tech Stack
 
@@ -62,7 +62,7 @@ Exactly **three** user roles (**no admin portal**):
 | **Auth** | JWT (jsonwebtoken) + bcrypt |
 | **Images** | Cloudinary 2.5.1 |
 | **Real-time** | Socket.IO 4.8.1 (bid updates & notifications) |
-| **Notifications** | Firebase Cloud Messaging (firebase-admin 12.7.0 – optional in dev) |
+| **Notifications** | Firebase Cloud Messaging (firebase-admin 12.7.0 ï¿½ optional in dev) |
 | **Payments** | Razorpay 2.9.4 (server-verified + signed webhooks, idempotent) |
 | **Validation** | Zod 3.23.8 (backend + frontend) |
 | **Dev Tools** | ts-node-dev, TypeScript 5.6.3, Vite, PostCSS, Autoprefixer |
@@ -77,7 +77,8 @@ Exactly **three** user roles (**no admin portal**):
 - **Socket.IO** pushes real-time updates to users/procurement rooms
 - **Payments** are always **server-side verified** via Razorpay webhooks with **idempotency** checks
 
-All API responses follow the envelope: { success: true, data: <value> }. The frontend services unwrap es.data.data.
+All API responses follow the envelope: { success: true, data: <value> }. The frontend services unwrap 
+es.data.data.
 
 ## Project Structure
 
@@ -99,10 +100,10 @@ See [Explanation.md](./Explanation.md) for the full, detailed file tree with per
 
 1. **Read** [
 ext_steps.txt](./next_steps.txt) for the exact commands
-2. **Set up env** – Fill ackend/.env and rontend/.env (see [Environment Variables](#environment-variables))
-3. **Start databases** – Use Docker ([section below](#running-with-docker-recommended)) or run Postgres/MongoDB/Redis natively
-4. **Apply schema + seed** – cd backend && npx prisma db push && npm run prisma:seed
-5. **Run apps** – Backend (
+2. **Set up env** ï¿½ Fill ackend/.env and rontend/.env (see [Environment Variables](#environment-variables))
+3. **Start databases** ï¿½ Use Docker ([section below](#running-with-docker-recommended)) or run Postgres/MongoDB/Redis natively
+4. **Apply schema + seed** ï¿½ cd backend && npx prisma db push && npm run prisma:seed
+5. **Run apps** ï¿½ Backend (
 pm run dev on :5000), Frontend (
 pm run dev on :5173)
 6. **Login** with demo credentials
@@ -114,7 +115,8 @@ pm run dev on :5173)
 |---|---|---|
 | DATABASE_URL | **Yes** | postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public |
 | MONGO_URL | **Yes** | mongodb://localhost:27017/agriconnect |
-| REDIS_URL | **Yes** | edis://localhost:6379 |
+| REDIS_URL | **Yes** | 
+edis://localhost:6379 |
 | JWT_SECRET | **Yes** | Generate a long random string (never commit real secrets) |
 | CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET | For image uploads | Get from [cloudinary.com](https://cloudinary.com) |
 | RAZORPAY_KEY_ID/KEY_SECRET/WEBHOOK_SECRET | For payments | Get from [dashboard.razorpay.com](https://dashboard.razorpay.com) (use Test keys in dev) |
@@ -151,7 +153,7 @@ docker compose up -d backend frontend
 - Backend API: [http://localhost:5000](http://localhost:5000)
 - Health: [http://localhost:5000/health](http://localhost:5000/health)
 
-**Note:** docker-compose.yml contains **no real secrets** – it uses local dev defaults and reads from .env files via env_file. It's safe to commit to GitHub.
+**Note:** docker-compose.yml contains **no real secrets** ï¿½ it uses local dev defaults and reads from .env files via env_file. It's safe to commit to GitHub.
 
 ## Running Natively (No Docker)
 
@@ -203,7 +205,7 @@ npm run build      # builds to dist/ (vite)
 
 ### B2B: Procurement ? Bidding ? Contracts
 1. **Supplier** creates procurement (OPEN) with quantity, min grade, bid deadline
-2. **Farmers** submit bids (open bidding – visible to others until deadline)
+2. **Farmers** submit bids (open bidding ï¿½ visible to others until deadline)
 3. **Supplier** closes bidding ? views **Smart Allocation** recommendations (ranked by score)
 4. **Supplier** accepts 1+ bids ? **FarmerContract(s)** created in a transaction
 5. **Farmer delivers** ? Supplier marks received ? **Quality Verification** (ACCEPTED/ADJUSTED/REJECTED/DISPUTED)
@@ -213,7 +215,7 @@ npm run build      # builds to dist/ (vite)
 1. **Supplier** creates **ProductListing** from verified inventory
 2. **Customer** browses marketplace, adds to cart, proceeds to checkout
 3. **Checkout** creates order (PAYMENT_PENDING) and **atomically reserves inventory**
-4. **Razorpay** – Backend creates Razorpay order ? customer pays ? **signed webhook** confirms (CAPTURED, idempotent) ? order becomes CONFIRMED and stock decremented
+4. **Razorpay** ï¿½ Backend creates Razorpay order ? customer pays ? **signed webhook** confirms (CAPTURED, idempotent) ? order becomes CONFIRMED and stock decremented
 5. **Supplier** advances order status (PROCESSING ? PACKED ? SHIPPED ? OUT_FOR_DELIVERY ? DELIVERED); **Tracking** page shows events
 
 ### Smart Allocation (Recommendation-only)
@@ -229,25 +231,26 @@ Default weights: **Price 30%**, **Quality 25%**, **Quantity 15%**, **Delivery 10
 
 ## Key Notes
 
-- **Exactly 3 roles** – FARMER, SUPPLIER, CUSTOMER. No admin role/portal.
-- **Source of truth** – PostgreSQL via Prisma. MongoDB is for flexible/audit data. Redis is for cache.
-- **Payments are secure** – Server creates Razorpay order; only **signed webhook** marks as captured. Idempotent by event/order keys. Never trust frontend success.
-- **Open bidding** – Transparent until bid deadline. Modify/withdraw only before deadline.
-- **Ownership** – Stays with farmer until quality verification result is ACCEPTED/ADJUSTED.
-- **Response envelope** – All backend endpoints return { success: true, data: ... }; frontend unwraps es.data.data.
-- **Route ordering note** – GET /market-prices/history/:crop is registered after GET /market-prices/:crop; be mindful if adding similar param routes.
-- **Git hygiene** – .env, 
+- **Exactly 3 roles** ï¿½ FARMER, SUPPLIER, CUSTOMER. No admin role/portal.
+- **Source of truth** ï¿½ PostgreSQL via Prisma. MongoDB is for flexible/audit data. Redis is for cache.
+- **Payments are secure** ï¿½ Server creates Razorpay order; only **signed webhook** marks as captured. Idempotent by event/order keys. Never trust frontend success.
+- **Open bidding** ï¿½ Transparent until bid deadline. Modify/withdraw only before deadline.
+- **Ownership** ï¿½ Stays with farmer until quality verification result is ACCEPTED/ADJUSTED.
+- **Response envelope** ï¿½ All backend endpoints return { success: true, data: ... }; frontend unwraps 
+es.data.data.
+- **Route ordering note** ï¿½ GET /market-prices/history/:crop is registered after GET /market-prices/:crop; be mindful if adding similar param routes.
+- **Git hygiene** ï¿½ .env, 
 ode_modules, dist, .vite, logs are gitignored. docker-compose.yml is safe to commit.
 
 ## Development Phases
 
-1. **Auth & Users** – Registration, login, JWT, roles, profiles
-2. **Procurement** – Create requirements, discover, open bidding, deadlines
-3. **Smart Procurement** – Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
-4. **Quality & Inventory** – Image upload, grade, quality verification, contracts, inventory
-5. **E-commerce** – Listings, search, cart, checkout, customer orders
-6. **Payments** – Razorpay server-side + webhooks + idempotency
-7. **Notifications & Real-time** – FCM (optional), Socket.IO
-8. **Market Prices** – Seed + Redis cache-aside
-9. **Advanced** – AI quality, maps, logistics (scaffolded)
-10. **Production** – Docker, CI/CD, monitoring, logging, backups, scaling
+1. **Auth & Users** ï¿½ Registration, login, JWT, roles, profiles
+2. **Procurement** ï¿½ Create requirements, discover, open bidding, deadlines
+3. **Smart Procurement** ï¿½ Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
+4. **Quality & Inventory** ï¿½ Image upload, grade, quality verification, contracts, inventory
+5. **E-commerce** ï¿½ Listings, search, cart, checkout, customer orders
+6. **Payments** ï¿½ Razorpay server-side + webhooks + idempotency
+7. **Notifications & Real-time** ï¿½ FCM (optional), Socket.IO
+8. **Market Prices** ï¿½ Seed + Redis cache-aside
+9. **Advanced** ï¿½ AI quality, maps, logistics (scaffolded)
+10. **Production** ï¿½ Docker, CI/CD, monitoring, logging, backups, scaling
