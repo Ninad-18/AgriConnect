@@ -229,6 +229,28 @@ export default function ProcurementDetail() {
                       })}
                       {b.note ? ` · ${b.note}` : ""}
                     </p>
+                    {b.images?.length > 0 && (
+                      <a className="mt-1 inline-block text-xs font-medium text-forest underline" href={b.images[0].url} target="_blank" rel="noreferrer">
+                        View crop photo
+                      </a>
+                    )}
+                    {b.qualityAssessments?.[0]?.output && (() => {
+                      const assessment = b.qualityAssessments![0].output!;
+                      return (
+                        <div className="mt-2 rounded-md bg-stone-50 p-2 text-xs text-stone-600">
+                          <span className="font-semibold text-forest">AI visual estimate: </span>
+                          {assessment.classification
+                            ? `${assessment.classification.label} (${Math.round((assessment.classification.confidence ?? 0) * 100)}%)`
+                            : assessment.capabilityStatus === "MODEL_UNAVAILABLE"
+                              ? "Model not yet validated for this crop"
+                              : assessment.capabilityStatus === "SERVICE_UNAVAILABLE"
+                                ? "Assessment service unavailable"
+                                : "Assessment pending"}
+                          {assessment.gradeEstimate && <span> · Grade estimate: {assessment.gradeEstimate}</span>}
+                          {assessment.warnings?.[0] && <span className="block text-stone-500">{assessment.warnings[0]}</span>}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

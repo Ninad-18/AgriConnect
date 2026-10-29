@@ -224,6 +224,9 @@ Default weights: **Price 30%**, **Quality 25%**, **Quantity 15%**, **Delivery 10
 ### Farmer reliability
 Reliability is a 0–100 score calculated from resolved platform contracts, never from registration. Its initial policy weights are: successful verified fulfilment **35%**, on-time supplier receipt **25%**, accepted-versus-delivered quality quantity **20%**, cancellation/rejection/dispute history **15%**, and verified transaction history (up to ten transactions) **5%**. Each contract is counted once using its latest non-pending verification. A score is withheld as **Insufficient history** until there are three resolved/verified transactions; confidence is low at 3–4, medium at 5–9, and high at 10+. Components without supporting evidence are omitted and the remaining weights are rebalanced—missing data is never treated as perfect performance. These are configurable product-policy starting thresholds, not scientifically validated claims.
 
+### AI crop-photo assessment
+The optional FastAPI service in `services/crop-quality-service` receives bid-photo bytes only from the authenticated Node backend. PostgreSQL remains authoritative for bids and image references; MongoDB stores non-authoritative assessment metadata keyed by bid ID. The browser never calls the model service. In the current repository no trained, crop-specific quality model or validated detector is bundled, so the service performs real image validation and returns an explicit unavailable/unsupported result rather than a fabricated quality class, defect box, confidence, or A/B/C grade. See `services/crop-quality-service/README.md` for setup and the validated-model onboarding policy.
+
 ## State Machines
 
 - **Procurement:** DRAFT ? OPEN ? BIDDING_CLOSED ? UNDER_SELECTION ? PARTIALLY_FULFILLED ? FULLY_ALLOCATED ? IN_DELIVERY ? COMPLETED

@@ -71,6 +71,20 @@ export interface BidImage {
   url: string;
 }
 
+export interface QualityAssessment {
+  _id?: string;
+  model?: string;
+  output?: {
+    capabilityStatus?: string;
+    modelVersion?: string;
+    classification?: { label?: string; confidence?: number } | null;
+    defects?: Array<{ label: string; confidence: number; box?: number[] }>;
+    gradeEstimate?: string | null;
+    warnings?: string[];
+    reason?: string;
+  };
+}
+
 export interface Bid {
   id: string;
   procurementId: string;
@@ -85,6 +99,7 @@ export interface Bid {
   farmLocation?: string;
   createdAt: string;
   images: BidImage[];
+  qualityAssessments?: QualityAssessment[];
   farmer?: { id: string; name: string };
   procurement?: ProcurementRequest;
   contracts?: FarmerContract[];

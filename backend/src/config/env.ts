@@ -45,6 +45,12 @@ export const env = {
 
   // Google Maps
   googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY ?? "",
+
+  qualityService: {
+    url: process.env.QUALITY_SERVICE_URL ?? "http://localhost:8001",
+    internalToken: process.env.QUALITY_INTERNAL_TOKEN ?? "",
+    timeoutMs: Number(process.env.QUALITY_SERVICE_TIMEOUT_MS ?? 8000),
+  },
 };
 
 export const isProd = env.nodeEnv === "production";

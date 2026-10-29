@@ -4,6 +4,7 @@ import { gradeRank, toGradeRank } from "../../utils/helpers";
 import { createNotification, logActivity } from "../../utils/notification.service";
 import { emitToProcurement, emitToUser } from "../../config/socket";
 import { CreateBidBody, UpdateBidBody } from "./bidding.validation";
+import { getBidAssessments } from "../quality/quality-assessment.service";
 
 // ── Farmer submits a bid ─────────────────────────────────────
 export async function createBid(farmerId: string, body: CreateBidBody, imageUrls: string[] = []) {
@@ -84,7 +85,7 @@ export async function createBid(farmerId: string, body: CreateBidBody, imageUrls
 
 // ── Farmer's own bids ─────────────────────────────────────────
 export async function myBids(farmerId: string) {
-  return prisma.bid.findMany({
+  const bids = await prisma.bid.findMany({
     where: { farmerId },
     orderBy: { createdAt: "desc" },
     include: {
@@ -93,6 +94,8 @@ export async function myBids(farmerId: string) {
       contracts: true,
     },
   });
+  const assessments = await getBidAssessments(bids.map((bid) => bid.id));
+  return bids.map((bid) => ({ ...bid, qualityAssessments: assessments.get(bid.id) ?? [] }));
 }
 
 export async function getBid(bidId: string, userId: string, role: string) {

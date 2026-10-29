@@ -87,6 +87,15 @@ export default function MyBids() {
                       )}
                     </p>
                   )}
+                  {b.qualityAssessments?.[0]?.output && (
+                    <p className="mt-1 text-xs text-stone-500">
+                      AI photo assessment: {b.qualityAssessments[0].output.capabilityStatus === "MODEL_UNAVAILABLE"
+                        ? "model not yet validated for this crop"
+                        : b.qualityAssessments[0].output.capabilityStatus === "SERVICE_UNAVAILABLE"
+                          ? "service unavailable"
+                          : b.qualityAssessments[0].output.classification?.label ?? "pending"}
+                    </p>
+                  )}
                 </div>
                 {modifiable && (
                   <button className="btn-secondary !py-1.5" onClick={() => onWithdraw(b)}>

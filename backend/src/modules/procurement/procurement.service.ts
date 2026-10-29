@@ -4,6 +4,7 @@ import { createNotification, logActivity } from "../../utils/notification.servic
 import { emitToProcurement, emitToUser } from "../../config/socket";
 import { toGradeRank, normalizeCropName, cropsMatch } from "../../utils/helpers";
 import { CreateProcurementBody, AcceptBidsBody } from "./procurement.validation";
+import { getBidAssessments } from "../quality/quality-assessment.service";
 
 // ── Supplier posts a new procurement requirement ──────────────
 export async function createProcurement(supplierId: string, body: CreateProcurementBody) {
@@ -141,7 +142,8 @@ export async function getProcurement(procurementId: string, userId: string) {
     },
   });
   if (!proc) throw new AppError(404, "Procurement request not found");
-  return proc;
+  const assessments = await getBidAssessments(proc.bids.map((bid) => bid.id));
+  return { ...proc, bids: proc.bids.map((bid) => ({ ...bid, qualityAssessments: assessments.get(bid.id) ?? [] })) };
 }
 
 // ── Update status (supplier-controlled transitions) ────────────
