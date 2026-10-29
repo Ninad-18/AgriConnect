@@ -1,6 +1,6 @@
 import { prisma } from "../../config/database";
 import { AppError } from "../../middleware/errorHandler";
-import { gradeRank } from "../../utils/helpers";
+import { gradeRank, toGradeRank } from "../../utils/helpers";
 import { createNotification, logActivity } from "../../utils/notification.service";
 import { emitToProcurement, emitToUser } from "../../config/socket";
 import { CreateBidBody, UpdateBidBody } from "./bidding.validation";
@@ -20,6 +20,18 @@ export async function createBid(farmerId: string, body: CreateBidBody, imageUrls
     throw new AppError(400, `Bid grade must be at least ${proc.minGrade}`);
   }
 
+  const existingBid = await prisma.bid.findFirst({
+    where: {
+      procurementId: proc.id,
+      farmerId,
+      status: { in: ["SUBMITTED", "ACTIVE"] },
+    },
+    select: { id: true },
+  });
+  if (existingBid) {
+    throw new AppError(409, "You already have an active bid for this procurement. Edit that bid instead.");
+  }
+
   const farm = await prisma.farmerProfile.findUnique({ where: { userId: farmerId } });
 
   const bid = await prisma.bid.create({
@@ -29,7 +41,7 @@ export async function createBid(farmerId: string, body: CreateBidBody, imageUrls
       quantityKg: body.quantityKg,
       pricePerKg: body.pricePerKg,
       grade: body.grade,
-      gradeRank: `A_${gradeRank(body.grade)}` as "A_3",
+      gradeRank: toGradeRank(body.grade),
       deliveryDate: new Date(body.deliveryDate),
       note: body.note,
       status: "ACTIVE",
@@ -137,7 +149,7 @@ export async function updateBid(
         quantityKg: body.quantityKg ?? bid.quantityKg,
         pricePerKg: body.pricePerKg ?? bid.pricePerKg,
         grade,
-        gradeRank: `A_${gradeRank(grade)}` as "A_3",
+        gradeRank: toGradeRank(grade),
         deliveryDate: body.deliveryDate ? new Date(body.deliveryDate) : bid.deliveryDate,
         note: body.note !== undefined ? body.note : bid.note,
         status: "ACTIVE",

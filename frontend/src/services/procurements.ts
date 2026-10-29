@@ -41,9 +41,17 @@ export async function fetchRecommendations(id: string): Promise<AllocationResult
 
 export async function acceptBids(
   procurementId: string,
-  payload: { bidIds: string[]; allocationMode?: string }
+  payload: { bidIds: string[] }
 ): Promise<{ contracts: unknown[]; awardedQuantityKg: number; status: string }> {
-  const { data } = await api.post(`/procurements/${procurementId}/accept-bids`, payload);
+  if (!Array.isArray(payload.bidIds) || payload.bidIds.length === 0) {
+    throw new Error("Select at least one active bid before accepting.");
+  }
+  // Keep this request body exactly aligned with acceptBidsSchema.
+  const { data } = await api.post(
+    `/procurements/${procurementId}/accept-bids`,
+    JSON.stringify({ bidIds: payload.bidIds }),
+    { headers: { "Content-Type": "application/json" } }
+  );
   return data.data;
 }
 

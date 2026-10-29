@@ -2,7 +2,9 @@ import { prisma } from "../../config/database";
 import { UpsertSupplierProfileBody } from "./supplier.validation";
 
 export async function getSupplierProfile(userId: string) {
-  return prisma.supplierProfile.findUnique({ where: { userId } });
+  const profile = await prisma.supplierProfile.findUnique({ where: { userId } });
+  if (profile) return profile;
+  return prisma.supplierProfile.create({ data: { userId } });
 }
 
 export async function upsertSupplierProfile(userId: string, body: UpsertSupplierProfileBody) {

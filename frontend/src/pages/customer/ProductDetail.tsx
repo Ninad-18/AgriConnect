@@ -17,14 +17,17 @@ export default function ProductDetail() {
   const { add } = useCart();
   const [listing, setListing] = useState<ProductListing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
+    setError(null);
     fetchListing(id)
       .then(setListing)
-      .catch(() => {})
+      .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -32,7 +35,7 @@ export default function ProductDetail() {
   if (!listing)
     return (
       <p className="py-12 text-center text-stone-500">
-        {t("productDetail.notFound", { defaultValue: "Product not found." })}
+        {error ?? t("productDetail.notFound", { defaultValue: "Product not found." })}
       </p>
     );
 
@@ -94,7 +97,21 @@ export default function ProductDetail() {
               defaultValue: `${fmtKg(available)} available`,
             })}
           </p>
+          {listing.seller && (
+            <p className="mt-1 text-sm text-stone-600">
+              {t("marketplace.soldBy", { defaultValue: "Sold by" })}{" "}
+              <span className="font-semibold text-forest">{listing.seller.name}</span>
+              {" · "}
+              {t(`common:roles.${listing.seller.role}`, { defaultValue: listing.seller.role })}
+              {listing.seller.location ? ` · ${listing.seller.location}` : ""}
+            </p>
+          )}
           {listing.description && <p className="mt-4 text-sm text-stone-600">{listing.description}</p>}
+          {available <= 0 && (
+            <p className="mt-4 rounded-lg bg-red-50 p-2 text-xs font-semibold text-red-600">
+              {t("productDetail.outOfStock", { defaultValue: "This listing is currently out of stock." })}
+            </p>
+          )}
           <div className="mt-6 flex items-end gap-3">
             <div>
               <label className="label">

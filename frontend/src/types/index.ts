@@ -25,7 +25,14 @@ export interface FarmerProfile {
   farmSizeAcres?: number;
   distanceKm: number;
   bio?: string;
-  reliability: number;
+  reliability: number | null;
+  reliabilitySummary?: {
+    score: number | null;
+    transactionCount: number;
+    confidence: "insufficient" | "low" | "medium" | "high";
+    explanation: string;
+    components: Partial<Record<"fulfilment" | "onTime" | "quality" | "conduct" | "history", number>>;
+  };
 }
 
 export interface SupplierProfile {
@@ -154,17 +161,30 @@ export interface Address {
 export interface ProductListing {
   id: string;
   supplierId: string;
+  sellerRole?: Role;
+  seller?: {
+    id: string;
+    name: string;
+    role: Role;
+    location?: string | null;
+  } | null;
   inventoryId: string;
+  productId?: string | null;
+  product?: { id: string; name: string; cropName: string } | null;
   title: string;
   description?: string;
   pricePerKg: number;
   images: string[];
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   inventory?: {
+    id?: string;
     quantityKg: number;
     reservedKg: number;
     grade: Grade;
     cropName: string;
+    status?: "AVAILABLE" | "RESERVED" | "SOLD_OUT";
   };
 }
 
@@ -236,6 +256,7 @@ export interface Notification {
 export interface InventoryItem {
   id: string;
   supplierId: string;
+  sellerRole?: Role;
   cropName: string;
   grade: Grade;
   quantityKg: number;

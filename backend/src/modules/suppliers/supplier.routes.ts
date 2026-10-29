@@ -8,7 +8,7 @@ import * as supplierService from "./supplier.service";
 const router = Router();
 
 router.get(
-  "/profile",
+  ["/me", "/profile"],
   authenticate,
   authorize("SUPPLIER"),
   asyncHandler(async (req, res) => {
@@ -18,7 +18,7 @@ router.get(
 );
 
 router.put(
-  "/profile",
+  ["/me", "/profile"],
   authenticate,
   authorize("SUPPLIER"),
   validate(upsertSupplierProfileSchema),

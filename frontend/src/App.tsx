@@ -35,7 +35,7 @@ export default function App() {
   const { t } = useTranslation("common");
 
   return (
-    <CartProvider userId={user?.id}>
+    <CartProvider userId={user?.id} isCustomer={user?.role === "CUSTOMER"}>
       <div className="flex min-h-screen flex-col">
         <Navbar />
         <main className="flex-1">
@@ -52,6 +52,8 @@ export default function App() {
               <Route path="/farmer/procurements/:id/bid" element={<SubmitBid />} />
               <Route path="/farmer/bids" element={<FarmerBids />} />
               <Route path="/farmer/contracts" element={<FarmerContracts />} />
+              <Route path="/farmer/products" element={<SupplierProducts />} />
+              <Route path="/farmer/deliveries" element={<SupplierDeliveries />} />
             </Route>
 
             <Route element={<ProtectedRoute role="SUPPLIER" />}>

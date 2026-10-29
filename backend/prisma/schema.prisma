@@ -372,6 +372,7 @@ model MarketPrice {
 model InventoryItem {
   id           String        @id @default(uuid())
   supplierId   String
+  sellerRole   Role          @default(SUPPLIER)
   contractId   String?
   contract     FarmerContract? @relation(fields: [contractId], references: [id])
   productId    String?
@@ -388,6 +389,7 @@ model InventoryItem {
 
   @@index([supplierId])
   @@index([status])
+  @@index([sellerRole])
 }
 
 // ── E-commerce (B2C) ──────────────────────────────────────
@@ -395,6 +397,7 @@ model InventoryItem {
 model ProductListing {
   id            String      @id @default(uuid())
   supplierId    String
+  sellerRole    Role        @default(SUPPLIER)
   inventoryId   String      @unique
   inventory     InventoryItem @relation(fields: [inventoryId], references: [id])
   productId     String?
@@ -413,6 +416,7 @@ model ProductListing {
 
   @@index([supplierId])
   @@index([isActive])
+  @@index([sellerRole])
 }
 
 model Cart {

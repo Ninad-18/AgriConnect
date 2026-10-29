@@ -22,7 +22,13 @@ export const addressSchema = z.object({
 export const cartItemSchema = z.object({
   body: z.object({
     listingId: z.string().min(1),
-    quantityKg: z.number().positive(),
+    quantityKg: z.coerce.number().positive(),
+  }),
+});
+
+export const updateCartItemSchema = z.object({
+  body: z.object({
+    quantityKg: z.coerce.number().positive(),
   }),
 });
 

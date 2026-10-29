@@ -64,7 +64,7 @@ export default function Checkout() {
 
   const items = cart?.items ?? [];
   const subtotal = items.reduce((a, i) => a + i.quantityKg * (i.unitPrice || i.listing?.pricePerKg || 0), 0);
-  const delivery = subtotal >= 500 ? 0 : 40;
+  const delivery = 0;
   const total = subtotal + delivery;
 
   const onNewAddress = async (e: React.FormEvent) => {

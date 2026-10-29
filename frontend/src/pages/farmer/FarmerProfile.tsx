@@ -25,6 +25,7 @@ export default function FarmerProfile() {
   const [farmSizeAcres, setFarmSizeAcres] = useState("");
   const [bio, setBio] = useState("");
   const [crops, setCrops] = useState<string[]>([]);
+  const [customCrop, setCustomCrop] = useState("");
   const [distanceKm, setDistanceKm] = useState("25");
 
   useEffect(() => {
@@ -42,7 +43,30 @@ export default function FarmerProfile() {
   }, []);
 
   const toggleCrop = (c: string) => {
-    setCrops((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+    setCrops((prev) =>
+      prev.some((x) => x.toLowerCase() === c.toLowerCase())
+        ? prev.filter((x) => x.toLowerCase() !== c.toLowerCase())
+        : [...prev, c]
+    );
+  };
+
+  const addCustomCrop = () => {
+    const crop = customCrop.trim().replace(/\s+/g, " ");
+    if (!crop) return;
+    if (crop.length > 80) {
+      toast.error(t("profile.cropTooLong", { defaultValue: "Crop name is too long" }));
+      return;
+    }
+    if (crops.some((x) => x.toLowerCase() === crop.toLowerCase())) {
+      setCustomCrop("");
+      return;
+    }
+    if (crops.length >= 50) {
+      toast.error(t("profile.cropLimit", { defaultValue: "You can add up to 50 crops" }));
+      return;
+    }
+    setCrops((prev) => [...prev, crop]);
+    setCustomCrop("");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -80,7 +104,17 @@ export default function FarmerProfile() {
           <p className="text-xs text-stone-400">
             {t("profile.reliabilityScore", { defaultValue: "Reliability score" })}
           </p>
-          <p className="text-lg font-bold text-forest">{Math.round((profile?.reliability ?? 0) * 100)}%</p>
+          <p className="text-lg font-bold text-forest">
+            {profile?.reliability === null || profile?.reliability === undefined
+              ? "Insufficient history"
+              : `${profile.reliability}%`}
+          </p>
+          {profile?.reliabilitySummary && (
+            <p className="mt-1 text-xs text-stone-500">
+              {profile.reliabilitySummary.transactionCount} verified transactions · {profile.reliabilitySummary.confidence} confidence
+              <span className="block">{profile.reliabilitySummary.explanation}</span>
+            </p>
+          )}
         </div>
         <div>
           <p className="text-xs text-stone-400">
@@ -136,13 +170,15 @@ export default function FarmerProfile() {
         <div>
           <label className="label">{t("profile.cropsIGrow", { defaultValue: "Crops I grow" })}</label>
           <div className="flex flex-wrap gap-1.5">
-            {ALL_CROPS.map((c) => (
+            {[...ALL_CROPS, ...crops.filter(
+              (c) => !ALL_CROPS.some((a) => a.toLowerCase() === c.toLowerCase())
+            )].map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => toggleCrop(c)}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                  crops.includes(c)
+                  crops.some((x) => x.toLowerCase() === c.toLowerCase())
                     ? "border-forest bg-forest text-white"
                     : "border-stone-300 bg-white text-stone-600"
                 }`}
@@ -150,6 +186,26 @@ export default function FarmerProfile() {
                 {getLocalizedProductName(c)}
               </button>
             ))}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <input
+              className="input"
+              value={customCrop}
+              maxLength={80}
+              onChange={(e) => setCustomCrop(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCustomCrop();
+                }
+              }}
+              placeholder={t("profile.customCropPlaceholder", {
+                defaultValue: "Add another crop (e.g. Finger millet)",
+              })}
+            />
+            <button type="button" className="btn-secondary whitespace-nowrap" onClick={addCustomCrop}>
+              {t("profile.addCrop", { defaultValue: "Add crop" })}
+            </button>
           </div>
         </div>
         <div>

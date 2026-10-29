@@ -9,7 +9,17 @@ export async function checkout(customerId: string, addressId: string) {
   return prisma.$transaction(async (tx) => {
     const customer = await tx.customerProfile.findUnique({
       where: { userId: customerId },
-      include: { cart: { include: { items: { include: { listing: { include: { inventory: true } } } } } } },
+      include: {
+        cart: {
+          include: {
+            items: {
+              include: {
+                listing: { include: { inventory: true } },
+              },
+            },
+          },
+        },
+      },
     });
     if (!customer) throw new AppError(404, "Customer profile not found");
     if (!customer.cart || customer.cart.items.length === 0) {
@@ -22,53 +32,80 @@ export async function checkout(customerId: string, addressId: string) {
 
     let subtotal = 0;
     const orderItems = [];
-    const supplierIds = new Set<string>();
-    let listingIdToInv: { listingId: string; inventoryId: string; qty: number }[] = [];
+    const sellerIds = new Set<string>();
+    const reservations: {
+      listingId: string;
+      inventoryId: string;
+      title: string;
+      qty: number;
+    }[] = [];
 
-    // Atomic inventory reservation + order item build
     for (const item of customer.cart.items) {
-      const inv = item.listing.inventory;
-      const available = inv.quantityKg - inv.reservedKg;
-      if (item.quantityKg > available) {
-        throw new AppError(400, `Insufficient inventory for ${item.listing.title}`);
+      const listing = item.listing;
+      const inventory = listing.inventory;
+      if (!listing.isActive) {
+        throw new AppError(400, `${listing.title} is no longer available`);
       }
-      const lineAmount = round2(item.quantityKg * item.unitPrice);
+      if (!Number.isFinite(item.quantityKg) || item.quantityKg <= 0) {
+        throw new AppError(400, `Invalid quantity for ${listing.title}`);
+      }
+
+      // Listing prices are authoritative at checkout; never reuse a price a
+      // browser stored in its cart before a seller changed the listing.
+      const lineAmount = round2(item.quantityKg * listing.pricePerKg);
       subtotal += lineAmount;
       orderItems.push({
         listingId: item.listingId,
-        title: item.listing.title,
+        title: listing.title,
         quantityKg: item.quantityKg,
-        unitPrice: item.unitPrice,
+        unitPrice: listing.pricePerKg,
         amount: lineAmount,
       });
-      supplierIds.add(item.listing.supplierId);
-      listingIdToInv.push({ listingId: item.listingId, inventoryId: inv.id, qty: item.quantityKg });
-    }
-
-    if (supplierIds.size > 1) {
-      // Multi-supplier order is out of scope for MVP; require single-supplier cart.
-      throw new AppError(400, "Checkout currently supports a single supplier per order");
-    }
-
-    // Reserve inventory (atomic decrement of available)
-    for (const li of listingIdToInv) {
-      await tx.inventoryItem.update({
-        where: { id: li.inventoryId },
-        data: { reservedKg: { increment: li.qty }, status: "RESERVED" },
+      sellerIds.add(listing.supplierId);
+      reservations.push({
+        listingId: item.listingId,
+        inventoryId: inventory.id,
+        title: listing.title,
+        qty: item.quantityKg,
       });
     }
 
-    const shipping = subtotal >= 500 ? 0 : 40;
-    const total = round2(subtotal + shipping);
+    if (sellerIds.size > 1) {
+      // Multi-seller order is out of scope for MVP; require a single-seller cart.
+      throw new AppError(400, "Checkout currently supports a single seller per order");
+    }
+
+    // Concurrency-safe reservation. The conditional UPDATE guarantees two
+    // simultaneous checkouts cannot both reserve the same stock.
+    for (const reservation of reservations) {
+      const updated = await tx.$executeRaw`
+        UPDATE "InventoryItem"
+        SET "reservedKg" = "reservedKg" + ${reservation.qty},
+            "status" = 'RESERVED'::"InventoryStatus",
+            "updatedAt" = NOW()
+        WHERE "id" = ${reservation.inventoryId}
+          AND "quantityKg" - "reservedKg" >= ${reservation.qty}
+          AND "status" <> 'SOLD_OUT'::"InventoryStatus"
+      `;
+      if (updated !== 1) {
+        throw new AppError(
+          409,
+          `Insufficient inventory for ${reservation.title}. Please update your cart.`
+        );
+      }
+    }
+
+    const deliveryFee = 0;
+    const total = round2(subtotal + deliveryFee);
 
     const order = await tx.customerOrder.create({
       data: {
         orderNumber: generateOrderNumber(),
         customerId,
-        supplierId: [...supplierIds][0],
+        supplierId: [...sellerIds][0],
         addressId: address.id,
         subtotal: round2(subtotal),
-        deliveryFee: shipping,
+        deliveryFee,
         total,
         status: "PAYMENT_PENDING",
         items: { create: orderItems },
@@ -96,9 +133,9 @@ export async function checkout(customerId: string, addressId: string) {
 }
 
 export async function listOrders(userId: string, role: string) {
-  let where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = {};
   if (role === "CUSTOMER") where.customerId = userId;
-  else if (role === "SUPPLIER") where.supplierId = userId;
+  else where.supplierId = userId;
   return prisma.customerOrder.findMany({
     where,
     orderBy: { createdAt: "desc" },
@@ -114,13 +151,13 @@ export async function getOrder(orderId: string, userId: string, role: string) {
   if (!order) throw new AppError(404, "Order not found");
   const allowed =
     order.customerId === userId ||
-    (role === "SUPPLIER" && order.supplierId === userId);
+    (role !== "CUSTOMER" && order.supplierId === userId);
   if (!allowed) throw new AppError(403, "Access denied");
   return order;
 }
 
-// ── Advance supplier-side status ─────────────────────────────
-const SUPPLIER_FLOW: Record<string, string> = {
+// ── Advance seller-side status ───────────────────────────────
+const SELLER_FLOW: Record<string, string> = {
   CONFIRMED: "PROCESSING",
   PROCESSING: "PACKED",
   PACKED: "SHIPPED",
@@ -128,12 +165,12 @@ const SUPPLIER_FLOW: Record<string, string> = {
   // DELIVERED is set by tracking module (customer/delivery confirmation)
 };
 
-export async function advanceStatus(orderId: string, supplierId: string) {
+export async function advanceStatus(orderId: string, sellerId: string) {
   return prisma.$transaction(async (tx) => {
     const order = await tx.customerOrder.findUnique({ where: { id: orderId } });
     if (!order) throw new AppError(404, "Order not found");
-    if (order.supplierId !== supplierId) throw new AppError(403, "Not your order");
-    const next = SUPPLIER_FLOW[order.status];
+    if (order.supplierId !== sellerId) throw new AppError(403, "Not your order");
+    const next = SELLER_FLOW[order.status];
     if (!next) throw new AppError(400, `Order cannot advance from ${order.status}`);
     const updated = await tx.customerOrder.update({
       where: { id: orderId },
@@ -143,6 +180,6 @@ export async function advanceStatus(orderId: string, supplierId: string) {
     if (next === "SHIPPED") {
       await tx.delivery.create({ data: { orderId, status: "SHIPPED" } });
     }
-    return next;
+    return updated.status;
   });
 }

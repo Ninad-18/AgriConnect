@@ -10,9 +10,12 @@ export function validate(schema: ZodSchema) {
         query: req.query,
         params: req.params,
       });
-      req.body = parsed.body;
-      Object.assign(req.query, parsed.query);
-      Object.assign(req.params, parsed.params);
+      // Schemas commonly validate only one request section (for example,
+      // params before a later body validator). Do not erase sections that
+      // this particular schema did not validate.
+      if ("body" in parsed) req.body = parsed.body;
+      if ("query" in parsed) Object.assign(req.query, parsed.query);
+      if ("params" in parsed) Object.assign(req.params, parsed.params);
       next();
     } catch (err) {
       if (err instanceof ZodError) {

@@ -58,10 +58,7 @@ export default function ProcurementDetail() {
     if (!id || selected.length === 0) return;
     setAccepting(true);
     try {
-      const res = await acceptBids(id, {
-        bidIds: selected,
-        allocationMode: alloc ? "SMART" : undefined,
-      });
+      const res = await acceptBids(id, { bidIds: selected });
       toast.success(
         t("procurementDetail.contractsCreatedSuccess", {
           count: res.contracts?.length ?? 0,

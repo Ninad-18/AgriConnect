@@ -16,11 +16,11 @@ router.get(
   })
 );
 
-// Advance tracking (e.g., supplier marks shipped; delivery updates)
+// Advance tracking (seller marks shipped/out for delivery; delivery updates)
 router.post(
   "/order/:orderId/update",
   authenticate,
-  authorize("SUPPLIER"),
+  authorize("FARMER", "SUPPLIER"),
   asyncHandler(async (req, res) => {
     const result = await trackingService.updateTracking(
       req.params.orderId,

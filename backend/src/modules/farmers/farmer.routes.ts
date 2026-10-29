@@ -7,8 +7,10 @@ import * as farmerService from "./farmer.service";
 
 const router = Router();
 
+// `/me` is the canonical route used by the frontend. Keep `/profile` as a
+// backwards-compatible alias for existing clients.
 router.get(
-  "/profile",
+  ["/me", "/profile"],
   authenticate,
   authorize("FARMER"),
   asyncHandler(async (req, res) => {
@@ -18,7 +20,7 @@ router.get(
 );
 
 router.put(
-  "/profile",
+  ["/me", "/profile"],
   authenticate,
   authorize("FARMER"),
   validate(upsertFarmerProfileSchema),

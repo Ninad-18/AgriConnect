@@ -4,6 +4,7 @@ import { loadProcurementForScoring, loadSupplierId } from "./allocation.data";
 import { allocate, WeightConfig, BidForScoring } from "./allocation.engine";
 import { DEFAULT_ALLOCATION_WEIGHTS } from "../../utils/constants";
 import { AllocationSnapshot } from "../../config/mongodb.models";
+import { getFarmerReliability } from "../farmers/farmer.service";
 
 export async function getRecommendations(procurementId: string, supplierId: string) {
   const { req, weights } = await loadForRequest(procurementId, supplierId);
@@ -46,6 +47,10 @@ async function loadBidsForScoring(procurementId: string): Promise<BidForScoring[
       farmer: { include: { farmerProfile: true } },
     },
   });
+  const reliabilities = await Promise.all(
+    bids.map(async (bid) => [bid.farmerId, await getFarmerReliability(bid.farmerId)] as const)
+  );
+  const reliabilityByFarmer = new Map(reliabilities);
   return bids.map((b) => ({
     id: b.id,
     bidderId: b.farmerId,
@@ -55,7 +60,9 @@ async function loadBidsForScoring(procurementId: string): Promise<BidForScoring[
     declaredOn: b.createdAt,
     deliveryDate: b.deliveryDate,
     distanceKm: b.distanceKm ?? b.farmer?.farmerProfile?.distanceKm ?? 30,
-    reliability: b.farmer?.farmerProfile?.reliability ?? 100,
+    // A farmer without adequate evidence gets a neutral score for ranking;
+    // account creation never grants a perfect reliability advantage.
+    reliability: reliabilityByFarmer.get(b.farmerId)?.score ?? 50,
   }));
 }
 

@@ -34,12 +34,12 @@ function writeGuestCart(cart: Cart | null) {
   else localStorage.removeItem(STORAGE_KEY);
 }
 
-export function CartProvider({ children, userId }: { children: ReactNode; userId?: string }) {
+export function CartProvider({ children, userId, isCustomer }: { children: ReactNode; userId?: string; isCustomer: boolean }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
-    if (!userId) {
+    if (!userId || !isCustomer) {
       setCart(readGuestCart());
       setLoading(false);
       return;
@@ -57,10 +57,10 @@ export function CartProvider({ children, userId }: { children: ReactNode; userId
   useEffect(() => {
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, isCustomer]);
 
   const add = async (listingId: string, quantityKg: number) => {
-    if (!userId) {
+    if (!userId || !isCustomer) {
       const current = readGuestCart();
       const merged: Cart = {
         id: "guest",
@@ -79,7 +79,7 @@ export function CartProvider({ children, userId }: { children: ReactNode; userId
   };
 
   const update = async (itemId: string, quantityKg: number) => {
-    if (!userId) {
+    if (!userId || !isCustomer) {
       const current = readGuestCart();
       const items = (current?.items ?? []).map((i) =>
         i.id === itemId || i.listingId === itemId ? { ...i, quantityKg } : i
@@ -94,7 +94,7 @@ export function CartProvider({ children, userId }: { children: ReactNode; userId
   };
 
   const remove = async (itemId: string) => {
-    if (!userId) {
+    if (!userId || !isCustomer) {
       const current = readGuestCart();
       const merged = {
         id: "guest",

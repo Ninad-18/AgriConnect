@@ -3,14 +3,16 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { fetchProcurement } from "@/services/procurements";
-import { createBid } from "@/services/bids";
-import { isUploadable, getErrorMessage } from "@/services/api";
+import { createBid, fetchMyBids, updateBid } from "@/services/bids";
+import { isUploadable, getErrorMessage, getUploadValidationMessage } from "@/services/api";
 import type { ProcurementRequest, Bid } from "@/types";
 import { fmtINR, fmtKg, fmtDate, isPast } from "@/lib/format";
 import { Spinner, Badge } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { fetchBidsForProcurement } from "@/services/bids";
 import { getLocalizedProductName } from "@/lib/products";
+
+const GRADE_RANK: Record<"A" | "B" | "C", number> = { A: 3, B: 2, C: 1 };
 
 export default function SubmitBid() {
   const { t } = useTranslation(["farmer", "common"]);
@@ -27,6 +29,7 @@ export default function SubmitBid() {
   const [deliveryDate, setDeliveryDate] = useState("");
   const [note, setNote] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [existingBidId, setExistingBidId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -34,8 +37,17 @@ export default function SubmitBid() {
       .then(async (p) => {
         setProc(p);
         setGrade(p.minGrade);
-        const bids = await fetchBidsForProcurement(id);
+        const [bids, myBids] = await Promise.all([fetchBidsForProcurement(id), fetchMyBids()]);
         setPeerBids(bids);
+        const existing = myBids.find((bid) => bid.procurementId === id && (bid.status === "ACTIVE" || bid.status === "SUBMITTED"));
+        if (existing) {
+          setExistingBidId(existing.id);
+          setQuantityKg(String(existing.quantityKg));
+          setPricePerKg(String(existing.pricePerKg));
+          setGrade(existing.grade);
+          setDeliveryDate(existing.deliveryDate.slice(0, 10));
+          setNote(existing.note ?? "");
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -45,7 +57,10 @@ export default function SubmitBid() {
 
   const onFiles = (files: FileList | null) => {
     if (!files) return;
-    const ok = Array.from(files).filter((f) => isUploadable(f));
+    const candidates = Array.from(files);
+    const rejected = candidates.find((file) => !isUploadable(file));
+    if (rejected) toast.error(getUploadValidationMessage(rejected));
+    const ok = candidates.filter((f) => isUploadable(f));
     setImages((prev) => [...prev, ...ok].slice(0, 5));
   };
 
@@ -58,16 +73,23 @@ export default function SubmitBid() {
       return toast.error(t("submitBid.validationPrice", { defaultValue: "Enter a valid price" }));
     setSubmitting(true);
     try {
-      await createBid({
-        procurementId: id,
+      const bidData = {
         quantityKg: Number(quantityKg),
         pricePerKg: Number(pricePerKg),
         grade,
         deliveryDate: new Date(deliveryDate).toISOString(),
         note: note || undefined,
-        images,
-      });
-      toast.success(t("submitBid.success", { defaultValue: "Bid submitted! Good luck." }));
+      };
+      if (existingBidId) {
+        if (images.length) {
+          return toast.error("Image changes require withdrawing and submitting a new bid.");
+        }
+        await updateBid(existingBidId, bidData);
+        toast.success("Bid updated.");
+      } else {
+        await createBid({ procurementId: id, ...bidData, images });
+        toast.success(t("submitBid.success", { defaultValue: "Bid submitted! Good luck." }));
+      }
       navigate("/farmer/bids");
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -172,7 +194,7 @@ export default function SubmitBid() {
                   key={g}
                   type="button"
                   onClick={() => setGrade(g)}
-                  disabled={g < proc.minGrade}
+                  disabled={GRADE_RANK[g] < GRADE_RANK[proc.minGrade]}
                   className={`flex-1 rounded-lg border px-4 py-2 text-sm font-semibold ${
                     grade === g
                       ? "border-forest bg-forest text-white"

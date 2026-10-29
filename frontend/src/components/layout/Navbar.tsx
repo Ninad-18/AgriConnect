@@ -17,6 +17,8 @@ const navFor: Record<string, NavItem[]> = {
     { to: "/farmer/procurements", isActive: (p) => p.startsWith("/farmer/procurements"), labelKey: "nav.procurements" },
     { to: "/farmer/bids", isActive: (p) => p.startsWith("/farmer/bids"), labelKey: "nav.myBids" },
     { to: "/farmer/contracts", isActive: (p) => p.startsWith("/farmer/contracts"), labelKey: "nav.contracts" },
+    { to: "/farmer/products", isActive: (p) => p.startsWith("/farmer/products"), labelKey: "nav.products" },
+    { to: "/farmer/deliveries", isActive: (p) => p.startsWith("/farmer/deliveries"), labelKey: "nav.deliveries" },
     { to: "/farmer/profile", isActive: (p) => p.startsWith("/farmer/profile"), labelKey: "nav.profile" },
   ],
   SUPPLIER: [

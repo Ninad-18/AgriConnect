@@ -7,7 +7,10 @@ export async function createBid(req: Request, res: Response): Promise<void> {
   const files = (req.files ?? []) as Express.Multer.File[];
   const urls: string[] = [];
   for (const file of files) {
-    const { url } = await uploadImage(file.buffer, { folder: "agriconnect/bids" });
+    const { url } = await uploadImage(file.buffer, {
+      folder: "agriconnect/bids",
+      mimeType: file.mimetype,
+    });
     urls.push(url);
   }
   const result = await biddingService.createBid(req.user!.id, req.body, urls);

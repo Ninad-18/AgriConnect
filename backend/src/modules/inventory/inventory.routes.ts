@@ -8,7 +8,7 @@ const router = Router();
 router.get(
   "/",
   authenticate,
-  authorize("SUPPLIER"),
+  authorize("FARMER", "SUPPLIER"),
   asyncHandler(async (req, res) => {
     const items = await prisma.inventoryItem.findMany({
       where: { supplierId: req.user!.id },

@@ -1,5 +1,67 @@
 import { randomBytes } from "crypto";
+import type { GradeRank } from "@prisma/client";
 import { Grade } from "./constants";
+
+const GRADE_RANK_MAP: Record<Grade, GradeRank> = {
+  A: "A_3",
+  B: "B_2",
+  C: "C_1",
+};
+
+// Map the domain grade to the persisted Prisma enum. Never construct these
+// values with string interpolation: the enum is A_3/B_2/C_1, not A_1..A_3.
+export function toGradeRank(grade: Grade): GradeRank {
+  return GRADE_RANK_MAP[grade];
+}
+
+export function normalizeCropName(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+export function normalizeCropList(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    const crop = normalizeCropName(value);
+    if (!crop) continue;
+    const key = crop.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(crop);
+  }
+  return result;
+}
+
+export function cropsMatch(a: string, b: string): boolean {
+  return normalizeCropName(a).toLowerCase() === normalizeCropName(b).toLowerCase();
+}
+
+export function sellableStock(inventory: {
+  quantityKg: number;
+  reservedKg: number;
+}): number {
+  return Math.max(0, inventory.quantityKg - inventory.reservedKg);
+}
+
+export function hasSellableStock(inventory: {
+  quantityKg: number;
+  reservedKg: number;
+}): boolean {
+  return sellableStock(inventory) > 0;
+}
+
+// A listing is purchasable only while published and backed by sellable stock.
+export function isListingVisible(listing: {
+  isActive: boolean;
+  inventory: { quantityKg: number; reservedKg: number };
+}): boolean {
+  return listing.isActive && hasSellableStock(listing.inventory);
+}
+
+// Ownership is always derived from the authenticated user, never a client id.
+export function ownsResource(ownerId: string, userId: string): boolean {
+  return Boolean(ownerId) && ownerId === userId;
+}
 
 export function generateOrderNumber(): string {
   const time = Date.now().toString(36).toUpperCase();

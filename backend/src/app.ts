@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import path from "path";
 
 import { env } from "./config/env";
 import { apiLimiter } from "./middleware/rateLimiter";
@@ -39,7 +40,17 @@ export function createApp(): Application {
       credentials: true,
     })
   );
-  app.use(express.json({ limit: "2mb" }));
+  // Development fallback for image uploads when no external storage is configured.
+  app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
+  app.use(
+    express.json({
+      limit: "2mb",
+      // Keep the exact bytes for Razorpay webhook signature verification.
+      verify: (req, _res, buf) => {
+        (req as express.Request & { rawBody?: Buffer }).rawBody = Buffer.from(buf);
+      },
+    })
+  );
   app.use(express.urlencoded({ extended: true }));
   if (env.nodeEnv === "development") {
     app.use(morgan("dev"));

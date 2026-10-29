@@ -135,12 +135,9 @@ export async function verifyQuality(
         });
         // ownership stays with farmer; no inventory transfer
         sendNotification(contract.farmerId, "quality_rejected", "Produce rejected", "Ownership remains with farmer");
-        // penalize reliability
-        const fp = await tx.farmerProfile.findUnique({ where: { userId: contract.farmerId } });
-        await tx.farmerProfile.update({
-          where: { userId: contract.farmerId },
-          data: { reliability: Math.max(0, (fp?.reliability ?? 100) - 5) },
-        });
+        // Reliability is calculated from verified contract history when it is
+        // read; this rejected outcome is therefore reflected without a mutable
+        // counter that can drift or double-count repeated verification calls.
         break;
 
       case VERIFICATION_OUTCOME.DISPUTED:

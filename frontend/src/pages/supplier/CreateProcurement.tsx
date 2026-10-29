@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { createProcurement } from "@/services/procurements";
+import { fetchCropSuggestions } from "@/services/products";
 import { getErrorMessage } from "@/services/api";
 import type { CreateProcurementInput } from "@/services/procurements";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -19,6 +20,7 @@ export default function CreateProcurement() {
   const { t } = useTranslation(["supplier", "common"]);
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [cropOptions, setCropOptions] = useState<string[]>(ALL_CROPS);
   const [form, setForm] = useState({
     productName: "",
     quantityKg: "",
@@ -33,6 +35,21 @@ export default function CreateProcurement() {
   });
 
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+
+  useEffect(() => {
+    fetchCropSuggestions()
+      .then((crops) => {
+        if (crops.length === 0) return;
+        const merged = new Map<string, string>();
+        for (const crop of [...ALL_CROPS, ...crops]) {
+          merged.set(crop.trim().toLowerCase(), crop.trim());
+        }
+        setCropOptions([...merged.values()].sort((a, b) => a.localeCompare(b)));
+      })
+      .catch(() => {
+        // Suggestions are optional; the free-text crop field still works.
+      });
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,16 +101,22 @@ export default function CreateProcurement() {
           <label className="label">
             {t("createProcurement.cropLabel", { defaultValue: "Crop / produce" })}
           </label>
-          <select className="input" value={form.productName} onChange={(e) => set("productName", e.target.value)}>
-            <option value="">
-              {t("createProcurement.selectCrop", { defaultValue: "Select crop..." })}
-            </option>
-            {ALL_CROPS.map((c) => (
+          <input
+            className="input"
+            list="crop-suggestions"
+            value={form.productName}
+            onChange={(e) => set("productName", e.target.value)}
+            placeholder={t("createProcurement.cropPlaceholder", {
+              defaultValue: "Type or select a crop (custom crops allowed)",
+            })}
+          />
+          <datalist id="crop-suggestions">
+            {cropOptions.map((c) => (
               <option key={c} value={c}>
                 {getLocalizedProductName(c)}
               </option>
             ))}
-          </select>
+          </datalist>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

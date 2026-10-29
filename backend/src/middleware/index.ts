@@ -12,12 +12,7 @@ export function errorMiddleware(
   _next: NextFunction
 ): void {
   const statusCode = err instanceof AppError ? err.statusCode : 500;
-  const message =
-    err instanceof AppError
-      ? err.message
-      : err instanceof Error
-      ? err.message
-      : "Internal server error";
+  const message = err instanceof AppError ? err.message : "Internal server error";
 
   if (statusCode === 500) {
     console.error("[error]", err);

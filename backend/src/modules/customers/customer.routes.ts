@@ -2,7 +2,12 @@ import { Router } from "express";
 import { authenticate, authorize } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import { asyncHandler } from "../../middleware";
-import { upsertCustomerProfileSchema, addressSchema, cartItemSchema } from "./customer.validation";
+import {
+  upsertCustomerProfileSchema,
+  addressSchema,
+  cartItemSchema,
+  updateCartItemSchema,
+} from "./customer.validation";
 import { prisma } from "../../config/database";
 import { getOrCreateCart, addToCart, updateCartItem, removeCartItem } from "./customer.service";
 
@@ -95,6 +100,7 @@ router.put(
   "/cart/items/:cartItemId",
   authenticate,
   authorize("CUSTOMER"),
+  validate(updateCartItemSchema),
   asyncHandler(async (req, res) => {
     const result = await updateCartItem(
       req.params.cartItemId,

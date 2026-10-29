@@ -32,7 +32,7 @@ router.post(
   authorize("CUSTOMER"),
   validate(createOrderSchema),
   asyncHandler(async (req, res) => {
-    const result = await paymentService.verifyPayment(req.body.orderId);
+    const result = await paymentService.verifyPayment(req.body.orderId, req.user!.id);
     res.json({ success: true, data: result });
   })
 );

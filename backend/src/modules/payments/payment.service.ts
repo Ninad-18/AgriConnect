@@ -95,15 +95,19 @@ export async function createPaymentOrder(
 }
 
 // 2. Verify payment status with Razorpay
-export async function verifyPayment(internalOrderId: string) {
+export async function verifyPayment(internalOrderId: string, customerId: string) {
   const rzp = getRazorpayClient();
 
   const payment = await prisma.payment.findUnique({
     where: { orderId: internalOrderId },
+    include: { order: { select: { customerId: true } } },
   });
 
   if (!payment || !payment.razorpayOrderId) {
     throw new AppError(404, "Payment not initialized");
+  }
+  if (payment.order?.customerId !== customerId) {
+    throw new AppError(403, "Not your order");
   }
 
   const rzpOrder = await rzp.orders.fetch(payment.razorpayOrderId);
@@ -131,7 +135,10 @@ export function verifyWebhookSignature(
     | string
     | undefined;
 
-  const body = JSON.stringify(req.body);
+  // Razorpay signs the exact raw request bytes. Re-serializing req.body can
+  // change key order/whitespace and would reject valid signatures.
+  const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
+  const body = rawBody ?? Buffer.from(JSON.stringify(req.body));
 
   const expected = crypto
     .createHmac("sha256", secret)
@@ -186,16 +193,9 @@ export async function processWebhook(payload: {
     return { ignored: true };
   }
 
+  let processed = false;
+
   await prisma.$transaction(async (tx) => {
-    // Idempotency: don't process an already captured payment again.
-    const existing = await tx.payment.findFirst({
-      where: { razorpayPaymentId },
-    });
-
-    if (existing && existing.status === "CAPTURED") {
-      return { alreadyProcessed: true };
-    }
-
     const payment = await tx.payment.findUnique({
       where: { razorpayOrderId },
       include: {
@@ -209,13 +209,40 @@ export async function processWebhook(payload: {
       throw new AppError(404, "Payment/order not found");
     }
 
-    await tx.payment.update({
-      where: { id: payment.id },
+    // The payment id must belong to this order; never let one captured
+    // payment id be attached to another order.
+    const conflicting = await tx.payment.findFirst({
+      where: { razorpayPaymentId },
+      select: { id: true, orderId: true },
+    });
+    if (conflicting && conflicting.orderId !== payment.orderId) {
+      throw new AppError(400, "Payment does not belong to this order");
+    }
+
+    // Idempotency: duplicate webhook retries must not decrement stock twice.
+    if (payment.status === "CAPTURED") {
+      return;
+    }
+
+    if (
+      typeof entity?.amount === "number" &&
+      Math.round(payment.amount * 100) !== entity.amount
+    ) {
+      throw new AppError(400, "Payment amount does not match the order total");
+    }
+
+    // Claim the payment atomically. A concurrent retry will update 0 rows and
+    // is treated as already processed.
+    const claimed = await tx.payment.updateMany({
+      where: { id: payment.id, status: { not: "CAPTURED" } },
       data: {
         status: "CAPTURED",
         razorpayPaymentId,
       },
     });
+    if (claimed.count === 0) {
+      return;
+    }
 
     // Confirm the customer order.
     await tx.customerOrder.update({
@@ -237,16 +264,33 @@ export async function processWebhook(payload: {
       if (listing) {
         const remainingQuantity =
           listing.inventory.quantityKg - item.quantityKg;
+        const reservedToRelease = Math.min(
+          item.quantityKg,
+          listing.inventory.reservedKg
+        );
+        const remainingReserved =
+          listing.inventory.reservedKg - reservedToRelease;
 
         await tx.inventoryItem.update({
           where: { id: listing.inventoryId },
           data: {
             quantityKg: { decrement: item.quantityKg },
-            reservedKg: { decrement: item.quantityKg },
+            reservedKg: { decrement: reservedToRelease },
             status:
-              remainingQuantity <= 0 ? "SOLD_OUT" : "AVAILABLE",
+              remainingQuantity <= 0
+                ? "SOLD_OUT"
+                : remainingReserved > 0
+                  ? "RESERVED"
+                  : "AVAILABLE",
           },
         });
+
+        if (remainingQuantity <= 0) {
+          await tx.productListing.update({
+            where: { id: listing.id },
+            data: { isActive: false },
+          });
+        }
       }
     }
 
@@ -256,7 +300,13 @@ export async function processWebhook(payload: {
         status: "CONFIRMED",
       },
     });
+
+    processed = true;
   });
+
+  if (!processed) {
+    return { alreadyProcessed: true };
+  }
 
   const payment = await prisma.payment.findUnique({
     where: { razorpayOrderId },

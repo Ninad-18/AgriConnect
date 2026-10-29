@@ -21,9 +21,8 @@ export async function createBid(input: CreateBidInput): Promise<Bid> {
   if (input.note) fd.append("note", input.note);
   for (const img of input.images ?? []) fd.append("images", img);
 
-  const { data } = await api.post("/bids", fd, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // Let the browser set multipart/form-data with its generated boundary.
+  const { data } = await api.post("/bids", fd);
   return data.data as Bid;
 }
 

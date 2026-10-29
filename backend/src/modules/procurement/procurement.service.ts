@@ -2,7 +2,7 @@ import { prisma } from "../../config/database";
 import { AppError } from "../../middleware/errorHandler";
 import { createNotification, logActivity } from "../../utils/notification.service";
 import { emitToProcurement, emitToUser } from "../../config/socket";
-import { gradeRank } from "../../utils/helpers";
+import { toGradeRank, normalizeCropName, cropsMatch } from "../../utils/helpers";
 import { CreateProcurementBody, AcceptBidsBody } from "./procurement.validation";
 
 // ── Supplier posts a new procurement requirement ──────────────
@@ -10,12 +10,22 @@ export async function createProcurement(supplierId: string, body: CreateProcurem
   const supplier = await prisma.user.findUnique({ where: { id: supplierId } });
   if (!supplier) throw new AppError(404, "Supplier not found");
 
-  // find or create the catalogue product by name
+  const productName = normalizeCropName(body.productName);
+
+  // find or create the catalogue product by name (custom crops are allowed)
   let product = await prisma.product.findFirst({
-    where: { name: body.productName, isActive: true },
+    where: {
+      isActive: true,
+      OR: [
+        { name: { equals: productName, mode: "insensitive" } },
+        { cropName: { equals: productName, mode: "insensitive" } },
+      ],
+    },
   });
   if (!product) {
-    product = await prisma.product.create({ data: { name: body.productName, cropName: body.productName } });
+    product = await prisma.product.create({
+      data: { name: productName, cropName: productName },
+    });
   }
 
   const proc = await prisma.procurementRequest.create({
@@ -25,7 +35,7 @@ export async function createProcurement(supplierId: string, body: CreateProcurem
       quantityKg: body.quantityKg,
       requiredQuantityKg: body.quantityKg,
       minGrade: body.minGrade,
-      minGradeRank: `A_${gradeRank(body.minGrade)}` as "A_3",
+      minGradeRank: toGradeRank(body.minGrade),
       deliveryDate: new Date(body.deliveryDate),
       bidDeadline: new Date(body.bidDeadline),
       transport: body.transport,
@@ -42,7 +52,7 @@ export async function createProcurement(supplierId: string, body: CreateProcurem
   await notifyMatchingFarmers(
     {
       id: proc.id,
-      productName: proc.product?.name ?? body.productName,
+      productName: proc.product?.name ?? productName,
       quantityKg: proc.quantityKg,
       minGrade: proc.minGrade,
     },
@@ -68,10 +78,9 @@ async function notifyMatchingFarmers(
   const crop = proc.productName;
   try {
     const farmers = await prisma.farmerProfile.findMany({
-      where: { crops: { has: crop } },
-      select: { userId: true },
+      select: { userId: true, crops: true },
     });
-    for (const f of farmers) {
+    for (const f of farmers.filter((profile) => profile.crops.some((c) => cropsMatch(c, crop)))) {
       await createNotification({
         userId: f.userId,
         type: "new_procurement",
@@ -164,6 +173,10 @@ export async function updateStatus(procurementId: string, supplierId: string, st
 export async function acceptBids(procurementId: string, supplierId: string, body: AcceptBidsBody) {
   const { bidIds } = body;
 
+  if (new Set(bidIds).size !== bidIds.length) {
+    throw new AppError(400, "Each bid can be selected only once");
+  }
+
   // Transaction + row locking prevents overselling past required quantity.
   return prisma.$transaction(async (tx) => {
     const proc = await tx.procurementRequest.findUnique({
@@ -173,12 +186,21 @@ export async function acceptBids(procurementId: string, supplierId: string, body
     if (proc.supplierId !== supplierId) {
       throw new AppError(403, "Not your procurement request");
     }
+    if (!['OPEN', 'BIDDING_CLOSED', 'UNDER_SELECTION', 'PARTIALLY_FULFILLED'].includes(proc.status)) {
+      throw new AppError(400, "This procurement is no longer accepting bids");
+    }
 
     const bids = await tx.bid.findMany({
       where: { id: { in: bidIds }, procurementId },
       include: { images: true },
     });
-    if (bids.length === 0) throw new AppError(400, "No valid bids found");
+    if (bids.length !== bidIds.length) {
+      throw new AppError(400, "One or more selected bids do not belong to this procurement");
+    }
+    const ineligible = bids.find((bid) => !['SUBMITTED', 'ACTIVE', 'ACCEPTED'].includes(bid.status));
+    if (ineligible) {
+      throw new AppError(400, "Only active bids can be accepted");
+    }
 
     // Concurrency guard: don't exceed required quantity.
     let awardedSoFar = proc.awardedQuantityKg ?? 0;
@@ -187,7 +209,7 @@ export async function acceptBids(procurementId: string, supplierId: string, body
 
     for (const bid of bids) {
       if (bid.status === "ACCEPTED") continue; // idempotent skip
-      if (!proc.allowPartial && awardedSoFar + bid.quantityKg > proc.requiredQuantityKg) {
+      if (awardedSoFar + bid.quantityKg > proc.requiredQuantityKg) {
         overflowing = true;
         continue;
       }

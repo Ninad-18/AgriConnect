@@ -21,7 +21,7 @@ export async function getTracking(orderId: string, userId: string, role: string)
     include: { deliveries: { orderBy: { createdAt: "asc" } } },
   });
   if (!order) throw new AppError(404, "Order not found");
-  const allowed = order.customerId === userId || (role === "SUPPLIER" && order.supplierId === userId);
+  const allowed = order.customerId === userId || (role !== "CUSTOMER" && order.supplierId === userId);
   if (!allowed) throw new AppError(403, "Access denied");
 
   const events = (order.deliveries ?? []).map((d) => ({
@@ -45,7 +45,7 @@ interface TrackEvent {
 
 export async function updateTracking(
   orderId: string,
-  supplierId: string,
+  sellerId: string,
   status: string,
   location?: string
 ) {
@@ -56,7 +56,7 @@ export async function updateTracking(
 
   const order = await prisma.customerOrder.findUnique({ where: { id: orderId } });
   if (!order) throw new AppError(404, "Order not found");
-  if (order.supplierId !== supplierId) throw new AppError(403, "Not your order");
+  if (order.supplierId !== sellerId) throw new AppError(403, "Not your order");
 
   const latest = await prisma.delivery.findFirst({
     where: { orderId },

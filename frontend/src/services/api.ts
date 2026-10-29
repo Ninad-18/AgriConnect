@@ -11,6 +11,11 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("agriconnect_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // The JSON default is correct for ordinary API calls, but it prevents the
+  // browser from adding a multipart boundary when the body is FormData.
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    config.headers.delete("Content-Type");
+  }
   return config;
 });
 
@@ -34,6 +39,13 @@ export function getErrorMessage(err: unknown): string {
   return e?.response?.data?.message ?? "Something went wrong";
 }
 
-export const isUploadable = (file: File, maxMb = 5): boolean => {
-  return file.type.startsWith("image/") && file.size <= maxMb * 1024 * 1024;
-};
+const SUPPORTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
+
+export const isUploadable = (file: File, maxMb = 5): boolean =>
+  SUPPORTED_IMAGE_TYPES.has(file.type) && file.size <= maxMb * 1024 * 1024;
+
+export function getUploadValidationMessage(file: File, maxMb = 5): string {
+  if (!SUPPORTED_IMAGE_TYPES.has(file.type)) return "Use a JPEG, PNG, WebP, HEIC, or HEIF image.";
+  if (file.size > maxMb * 1024 * 1024) return `Images must be ${maxMb}MB or smaller.`;
+  return "";
+}

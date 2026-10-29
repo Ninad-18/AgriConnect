@@ -44,11 +44,11 @@ router.post(
   })
 );
 
-// Advance order status (supplier side: PROCESSING->PACKED->SHIPPED->OUT_FOR_DELIVERY)
+// Advance order status (seller side: PROCESSING->PACKED->SHIPPED->OUT_FOR_DELIVERY)
 router.post(
   "/:orderId/advance",
   authenticate,
-  authorize("SUPPLIER"),
+  authorize("FARMER", "SUPPLIER"),
   asyncHandler(async (req, res) => {
     const result = await orderService.advanceStatus(req.params.orderId, req.user!.id);
     res.json({ success: true, data: { status: result } });
