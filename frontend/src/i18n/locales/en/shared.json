@@ -1,0 +1,20 @@
+{
+  "marketPrices": {
+    "title": "Market Prices",
+    "description": "Live and historical prices from AGMARKNET & eNAM",
+    "searchPlaceholder": "Search crop...",
+    "allCrops": "All crops",
+    "noData": "No price data yet",
+    "noDataHint": "Price data appears once the market data job runs.",
+    "min": "Min",
+    "avg": "Avg",
+    "max": "Max"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "emptyTitle": "No notifications",
+    "emptyHint": "Bid updates, contract news and order alerts appear here.",
+    "newBadge": "New"
+  }
+}

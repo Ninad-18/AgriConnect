@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { fetchSupplierProfile, updateSupplierProfile } from "@/services/auth";
 import { getErrorMessage } from "@/services/api";
@@ -7,6 +8,7 @@ import { Spinner } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function SupplierProfile() {
+  const { t } = useTranslation(["supplier", "common"]);
   const [profile, setProfile] = useState<SupplierProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,7 +39,7 @@ export default function SupplierProfile() {
         businessType: businessType || undefined,
         bio: bio || undefined,
       });
-      toast.success("Profile updated");
+      toast.success(t("profile.profileUpdated", { defaultValue: "Profile updated" }));
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -49,35 +51,57 @@ export default function SupplierProfile() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <PageHeader title="Supplier Profile" description="Tell farmers and customers about your business." />
+      <PageHeader
+        title={t("profile.title", { defaultValue: "Supplier Profile" })}
+        description={t("profile.description", {
+          defaultValue: "Tell farmers and customers about your business.",
+        })}
+      />
       <form onSubmit={onSubmit} className="card space-y-4">
         <div>
-          <label className="label">Company name</label>
-          <input className="input" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="GreenMart Wholesale" />
+          <label className="label">{t("profile.companyName", { defaultValue: "Company name" })}</label>
+          <input
+            className="input"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder={t("profile.companyPlaceholder", { defaultValue: "GreenMart Wholesale" })}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Location</label>
+            <label className="label">{t("profile.location", { defaultValue: "Location" })}</label>
             <input className="input" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
           <div>
-            <label className="label">Business type</label>
+            <label className="label">{t("profile.businessType", { defaultValue: "Business type" })}</label>
             <select className="input" value={businessType} onChange={(e) => setBusinessType(e.target.value)}>
-              <option value="">Select...</option>
-              <option>Wholesaler</option>
-              <option>Aggregator</option>
-              <option>Processor</option>
-              <option>Exporter</option>
-              <option>Retail chain</option>
+              <option value="">{t("profile.selectType", { defaultValue: "Select..." })}</option>
+              <option value="Wholesaler">
+                {t("profile.types.wholesaler", { defaultValue: "Wholesaler" })}
+              </option>
+              <option value="Aggregator">
+                {t("profile.types.aggregator", { defaultValue: "Aggregator" })}
+              </option>
+              <option value="Processor">
+                {t("profile.types.processor", { defaultValue: "Processor" })}
+              </option>
+              <option value="Exporter">
+                {t("profile.types.exporter", { defaultValue: "Exporter" })}
+              </option>
+              <option value="Retail chain">
+                {t("profile.types.retailChain", { defaultValue: "Retail chain" })}
+              </option>
             </select>
           </div>
         </div>
         <div>
-          <label className="label">About</label>
+          <label className="label">{t("profile.about", { defaultValue: "About" })}</label>
           <textarea className="input" rows={4} value={bio} onChange={(e) => setBio(e.target.value)} />
         </div>
         <button className="btn-primary" type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save profile"}
+          {saving
+            ? t("common:actions.saving", { defaultValue: "Saving..." })
+            : t("profile.saveProfile", { defaultValue: "Save profile" })}
         </button>
       </form>
     </div>

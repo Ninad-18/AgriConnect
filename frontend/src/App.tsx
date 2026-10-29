@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/layout/Navbar";
@@ -31,6 +32,7 @@ import Notifications from "./pages/shared/Notifications";
 
 export default function App() {
   const { user } = useAuth();
+  const { t } = useTranslation("common");
 
   return (
     <CartProvider userId={user?.id}>
@@ -80,7 +82,7 @@ export default function App() {
           </Routes>
         </main>
         <footer className="border-t border-stone-200 bg-white py-6 text-center text-xs text-stone-500">
-          AgriConnect- connecting Indian farmers, suppliers and customers.
+          {t("footer", { defaultValue: "AgriConnect — connecting Indian farmers, suppliers and customers." })}
         </footer>
       </div>
     </CartProvider>

@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchPrices } from "@/services/marketPrices";
 import type { MarketPrice } from "@/types";
 import { fmtINR, classNames } from "@/lib/format";
 import { Spinner, EmptyState } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getLocalizedProductName, matchesProductSearch } from "@/lib/products";
 
 export default function MarketPrices() {
+  const { t } = useTranslation(["shared", "common"]);
   const [prices, setPrices] = useState<MarketPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string>("all");
@@ -23,7 +26,7 @@ export default function MarketPrices() {
   const visible = useMemo(() => {
     return prices
       .filter((p) => selected === "all" || p.crop === selected)
-      .filter((p) => p.crop.toLowerCase().includes(search.toLowerCase()));
+      .filter((p) => matchesProductSearch(p.crop, search));
   }, [prices, selected, search]);
 
   const changePct = (p: MarketPrice) => {
@@ -37,19 +40,24 @@ export default function MarketPrices() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <PageHeader title="Market Prices" description="Live and historical prices from AGMARKNET & eNAM" />
+      <PageHeader
+        title={t("marketPrices.title", { defaultValue: "Market Prices" })}
+        description={t("marketPrices.description", {
+          defaultValue: "Live and historical prices from AGMARKNET & eNAM",
+        })}
+      />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           className="input max-w-xs"
-          placeholder="Search crop..."
+          placeholder={t("marketPrices.searchPlaceholder", { defaultValue: "Search crop..." })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select className="input max-w-xs" value={selected} onChange={(e) => setSelected(e.target.value)}>
-          <option value="all">All crops</option>
+          <option value="all">{t("marketPrices.allCrops", { defaultValue: "All crops" })}</option>
           {crops.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {getLocalizedProductName(c)}
             </option>
           ))}
         </select>
@@ -58,7 +66,12 @@ export default function MarketPrices() {
       {loading ? (
         <Spinner />
       ) : visible.length === 0 ? (
-        <EmptyState title="No price data yet" hint="Price data appears once the market data job runs." />
+        <EmptyState
+          title={t("marketPrices.noData", { defaultValue: "No price data yet" })}
+          hint={t("marketPrices.noDataHint", {
+            defaultValue: "Price data appears once the market data job runs.",
+          })}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((p) => {
@@ -67,8 +80,10 @@ export default function MarketPrices() {
             return (
               <div key={p.id} className="card">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-forest">{p.crop}</h3>
-                  <span className="badge bg-stone-100 text-stone-600">per {p.unit}</span>
+                  <h3 className="text-lg font-semibold text-forest">{getLocalizedProductName(p.crop)}</h3>
+                  <span className="badge bg-stone-100 text-stone-600">
+                    {t("common:units.perUnit", { unit: p.unit, defaultValue: `per ${p.unit}` })}
+                  </span>
                 </div>
                 <p className="mt-2 text-3xl font-bold text-forest">{fmtINR(p.current)}</p>
                 {change != null && (
@@ -78,13 +93,16 @@ export default function MarketPrices() {
                 )}
                 <div className="mt-3 flex gap-4 text-xs text-stone-500">
                   <span>
-                    Min <b>{p.min30d != null ? fmtINR(p.min30d) : "-"}</b>
+                    {t("marketPrices.min", { defaultValue: "Min" })}{" "}
+                    <b>{p.min30d != null ? fmtINR(p.min30d) : "-"}</b>
                   </span>
                   <span>
-                    Avg <b>{p.avg30d != null ? fmtINR(p.avg30d) : "-"}</b>
+                    {t("marketPrices.avg", { defaultValue: "Avg" })}{" "}
+                    <b>{p.avg30d != null ? fmtINR(p.avg30d) : "-"}</b>
                   </span>
                   <span>
-                    Max <b>{p.max30d != null ? fmtINR(p.max30d) : "-"}</b>
+                    {t("marketPrices.max", { defaultValue: "Max" })}{" "}
+                    <b>{p.max30d != null ? fmtINR(p.max30d) : "-"}</b>
                   </span>
                 </div>
               </div>

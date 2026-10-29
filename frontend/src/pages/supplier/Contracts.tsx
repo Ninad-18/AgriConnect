@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { fetchSupplierContracts } from "@/services/contracts";
 import { receiveContract, verifyQuality } from "@/services/quality";
@@ -7,8 +8,10 @@ import type { FarmerContract, QualityVerification } from "@/types";
 import { fmtINR, fmtKg, fmtDate } from "@/lib/format";
 import { Spinner, EmptyState, Badge } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getLocalizedProductName } from "@/lib/products";
 
 export default function Contracts() {
+  const { t } = useTranslation(["supplier", "farmer", "common"]);
   const [groups, setGroups] = useState<Awaited<ReturnType<typeof fetchSupplierContracts>>>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
@@ -26,7 +29,7 @@ export default function Contracts() {
   const onReceive = async (c: FarmerContract) => {
     try {
       await receiveContract(c.id);
-      toast.success("Produce marked as received");
+      toast.success(t("contracts.markedReceivedSuccess", { defaultValue: "Produce marked as received" }));
       load();
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -60,17 +63,25 @@ export default function Contracts() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <PageHeader
-        title="Farmer Contracts"
-        description="Receive produce, verify quality and manage fulfillment."
+        title={t("contracts.title", { defaultValue: "Farmer Contracts" })}
+        description={t("contracts.description", {
+          defaultValue: "Receive produce, verify quality and manage fulfillment.",
+        })}
       />
       {groups.length === 0 ? (
-        <EmptyState title="No contracts yet" hint="Accept bids on your procurements to generate contracts." />
+        <EmptyState
+          title={t("contracts.emptyTitle", { defaultValue: "No contracts yet" })}
+          hint={t("contracts.emptyHint", {
+            defaultValue: "Accept bids on your procurements to generate contracts.",
+          })}
+        />
       ) : (
         <div className="space-y-6">
           {groups.map((g) => (
             <section key={g.procurementId} className="card">
               <h3 className="font-semibold text-forest">
-                {g.productName} <span className="text-sm font-normal text-stone-400">· {fmtKg(g.quantityKg)}</span>
+                {getLocalizedProductName(g.productName)}{" "}
+                <span className="text-sm font-normal text-stone-400">· {fmtKg(g.quantityKg)}</span>
               </h3>
               <div className="mt-3 space-y-3">
                 {g.contracts.map((c) => (
@@ -108,6 +119,7 @@ function ContractCard({
   onReceive: () => void;
   onOpenVerify: () => void;
 }) {
+  const { t } = useTranslation(["supplier", "farmer", "common"]);
   const receivable = ["CREATED", "ACCEPTED", "IN_DELIVERY"].includes(c.status);
   const verifyable = ["RECEIVED", "VERIFIED"].includes(c.status) || c.status === "RECEIVED";
   return (
@@ -115,25 +127,41 @@ function ContractCard({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-stone-700">{c.farmer?.name ?? "Farmer"}</span>
+            <span className="text-sm font-semibold text-stone-700">
+              {c.farmer?.name ?? t("procurementDetail.farmerLabel", { defaultValue: "Farmer" })}
+            </span>
             <Badge status={c.status} />
           </div>
           <p className="mt-1 text-xs text-stone-500">
-            {fmtKg(c.quantityKg)} @ {fmtINR(c.pricePerKg)}/kg → <b>{fmtINR(c.amount)}</b> · grade {c.grade} · created {fmtDate(c.createdAt)}
+            {fmtKg(c.quantityKg)} @ {fmtINR(c.pricePerKg)}
+            {t("common:units.perKg", { defaultValue: "/kg" })} → <b>{fmtINR(c.amount)}</b> ·{" "}
+            {t("common:grades.gradeLabel", { grade: c.grade, defaultValue: `grade ${c.grade}` })} ·{" "}
+            {t("farmer:contracts.created", {
+              date: fmtDate(c.createdAt),
+              defaultValue: `created ${fmtDate(c.createdAt)}`,
+            })}
           </p>
           <p className="text-xs text-stone-400">
-            Delivered {fmtKg(c.deliveredQuantityKg)} · accepted {fmtKg(c.acceptedQuantityKg)}
+            {t("farmer:contracts.delivered", {
+              qty: fmtKg(c.deliveredQuantityKg),
+              defaultValue: `Delivered ${fmtKg(c.deliveredQuantityKg)}`,
+            })}{" "}
+            ·{" "}
+            {t("farmer:contracts.accepted", {
+              qty: fmtKg(c.acceptedQuantityKg),
+              defaultValue: `accepted ${fmtKg(c.acceptedQuantityKg)}`,
+            })}
           </p>
         </div>
         <div className="flex gap-2">
           {receivable && (
             <button className="btn-secondary !py-1.5" onClick={onReceive}>
-              Mark received
+              {t("contracts.markReceived", { defaultValue: "Mark received" })}
             </button>
           )}
           {verifyable && (
             <button className="btn-primary !py-1.5" onClick={onOpenVerify}>
-              Verify quality
+              {t("contracts.verifyQuality", { defaultValue: "Verify quality" })}
             </button>
           )}
         </div>
@@ -144,8 +172,23 @@ function ContractCard({
             <div key={v.id} className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
               <Badge status={v.outcome} />
               <span>
-                Declared {v.declaredGrade} · {v.actualGrade ? `actual ${v.actualGrade}` : "actual TBD"}
-                {v.adjustedPriceKg ? ` · adjusted ${fmtINR(v.adjustedPriceKg)}/kg` : ""}
+                {t("farmer:contracts.declared", {
+                  grade: v.declaredGrade,
+                  defaultValue: `Declared ${v.declaredGrade}`,
+                })}{" "}
+                ·{" "}
+                {v.actualGrade
+                  ? t("farmer:contracts.actual", {
+                      grade: v.actualGrade,
+                      defaultValue: `actual ${v.actualGrade}`,
+                    })
+                  : t("farmer:contracts.actualTbd", { defaultValue: "actual TBD" })}
+                {v.adjustedPriceKg
+                  ? ` · ${t("farmer:contracts.adjusted", {
+                      price: fmtINR(v.adjustedPriceKg),
+                      defaultValue: `adjusted ${fmtINR(v.adjustedPriceKg)}/kg`,
+                    })}`
+                  : ""}
               </span>
             </div>
           ))}
@@ -166,6 +209,7 @@ function VerifyModal({
   onClose: () => void;
   onVerify: (outcome: string, payload?: Partial<QualityVerification>) => void;
 }) {
+  const { t } = useTranslation(["supplier", "common"]);
   const [outcome, setOutcome] = useState<string>("ACCEPTED");
   const [grade, setGrade] = useState<string>(c.grade);
   const [adjustedPrice, setAdjustedPrice] = useState(String(c.pricePerKg));
@@ -180,10 +224,15 @@ function VerifyModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="card w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-forest">Verify quality · {fmtKg(c.quantityKg)}</h3>
+        <h3 className="text-lg font-semibold text-forest">
+          {t("contracts.verifyModalTitle", {
+            qty: fmtKg(c.quantityKg),
+            defaultValue: `Verify quality · ${fmtKg(c.quantityKg)}`,
+          })}
+        </h3>
         <div className="mt-4 space-y-4">
           <div>
-            <label className="label">Outcome</label>
+            <label className="label">{t("contracts.outcomeLabel", { defaultValue: "Outcome" })}</label>
             <div className="grid grid-cols-2 gap-2">
               {["ACCEPTED", "ADJUSTED", "REJECTED", "DISPUTED"].map((o) => (
                 <button
@@ -193,19 +242,22 @@ function VerifyModal({
                     outcome === o ? "border-forest bg-forest text-white" : "border-stone-300 text-stone-600"
                   }`}
                 >
-                  {o}
+                  <Badge status={o} />
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="label">Actual grade</label>
+            <label className="label">{t("contracts.actualGradeLabel", { defaultValue: "Actual grade" })}</label>
             <div className="flex gap-2">
               {(["A", "B", "C"] as const).map((g) => (
-                <button key={g} onClick={() => setGrade(g)}
+                <button
+                  key={g}
+                  onClick={() => setGrade(g)}
                   className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold ${
                     grade === g ? "border-forest bg-forest text-white" : "border-stone-300 text-stone-600"
-                  }`}>
+                  }`}
+                >
                   {g}
                 </button>
               ))}
@@ -213,18 +265,31 @@ function VerifyModal({
           </div>
           {outcome === "ADJUSTED" && (
             <div>
-              <label className="label">Adjusted price (₹/kg)</label>
-              <input className="input" type="number" min="0.01" step="0.01" value={adjustedPrice} onChange={(e) => setAdjustedPrice(e.target.value)} />
+              <label className="label">
+                {t("contracts.adjustedPriceLabel", { defaultValue: "Adjusted price (₹/kg)" })}
+              </label>
+              <input
+                className="input"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={adjustedPrice}
+                onChange={(e) => setAdjustedPrice(e.target.value)}
+              />
             </div>
           )}
           <div>
-            <label className="label">Notes</label>
+            <label className="label">{t("contracts.notesLabel", { defaultValue: "Notes" })}</label>
             <textarea className="input" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="flex justify-end gap-2">
-            <button className="btn-secondary" onClick={onClose}>Cancel</button>
+            <button className="btn-secondary" onClick={onClose}>
+              {t("common:actions.cancel", { defaultValue: "Cancel" })}
+            </button>
             <button className="btn-primary" disabled={busy} onClick={() => onVerify(outcome, payload())}>
-              {busy ? "Saving..." : "Submit verification"}
+              {busy
+                ? t("contracts.verifying", { defaultValue: "Saving..." })
+                : t("contracts.submitVerification", { defaultValue: "Submit verification" })}
             </button>
           </div>
         </div>

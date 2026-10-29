@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { fetchOrders } from "@/services/orders";
 import { getErrorMessage } from "@/services/api";
@@ -8,15 +9,16 @@ import { fmtINR, fmtDate } from "@/lib/format";
 import { Spinner, EmptyState, Badge } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
 
-const NEXT_STEP: Record<string, { label: string; next: string | null }> = {
-  CONFIRMED: { label: "Mark processing", next: "PROCESSING" },
-  PROCESSING: { label: "Mark packed", next: "PACKED" },
-  PACKED: { label: "Mark shipped", next: "SHIPPED" },
-  SHIPPED: { label: "Out for delivery", next: "OUT_FOR_DELIVERY" },
-  OUT_FOR_DELIVERY: { label: "Mark delivered", next: "DELIVERED" },
+const NEXT_STEP: Record<string, { key: string; label: string; next: string | null }> = {
+  CONFIRMED: { key: "markProcessing", label: "Mark processing", next: "PROCESSING" },
+  PROCESSING: { key: "markPacked", label: "Mark packed", next: "PACKED" },
+  PACKED: { key: "markShipped", label: "Mark shipped", next: "SHIPPED" },
+  SHIPPED: { key: "outForDelivery", label: "Out for delivery", next: "OUT_FOR_DELIVERY" },
+  OUT_FOR_DELIVERY: { key: "markDelivered", label: "Mark delivered", next: "DELIVERED" },
 };
 
 export default function Deliveries() {
+  const { t } = useTranslation(["supplier", "common"]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -40,7 +42,10 @@ export default function Deliveries() {
       } else {
         await api.post(`/orders/${o.id}/advance`);
       }
-      toast.success(`Order moved to ${step.next.replace(/_/g, " ")}`);
+      const nextStatusName = t(`common:statuses.${step.next}`, { defaultValue: step.next.replace(/_/g, " ") });
+      toast.success(
+        t("deliveries.orderMoved", { step: nextStatusName, defaultValue: `Order moved to ${nextStatusName}` })
+      );
       load();
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -55,13 +60,25 @@ export default function Deliveries() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <PageHeader title="Deliveries & Fulfilment" description="Track and update customer orders end to end." />
+      <PageHeader
+        title={t("deliveries.title", { defaultValue: "Deliveries & Fulfilment" })}
+        description={t("deliveries.description", {
+          defaultValue: "Track and update customer orders end to end.",
+        })}
+      />
       {orders.length === 0 ? (
-        <EmptyState title="No orders yet" hint="Customer orders will appear here once the marketplace takes off." />
+        <EmptyState
+          title={t("deliveries.emptyTitle", { defaultValue: "No orders yet" })}
+          hint={t("deliveries.emptyHint", {
+            defaultValue: "Customer orders will appear here once the marketplace takes off.",
+          })}
+        />
       ) : (
         <div className="space-y-3">
           {active.length === 0 && (
-            <p className="card text-sm text-stone-500">No active orders 🎉 All orders delivered.</p>
+            <p className="card text-sm text-stone-500">
+              {t("deliveries.noActiveOrders", { defaultValue: "No active orders 🎉 All orders delivered." })}
+            </p>
           )}
           {orders.map((o) => {
             const step = NEXT_STEP[o.status];
@@ -74,12 +91,18 @@ export default function Deliveries() {
                       <Badge status={o.status} />
                     </div>
                     <p className="mt-1 text-sm text-stone-500">
-                      {fmtDate(o.createdAt)} · {o.items?.length ?? 0} item(s) · <b>{fmtINR(o.total)}</b>
+                      {fmtDate(o.createdAt)} ·{" "}
+                      {t("orders.itemsCount", {
+                        count: o.items?.length ?? 0,
+                        defaultValue: `${o.items?.length ?? 0} item(s)`,
+                      })}{" "}
+                      · <b>{fmtINR(o.total)}</b>
                     </p>
                     <div className="mt-1 flex flex-wrap gap-2">
                       {(o.items ?? []).map((i) => (
                         <span key={i.id} className="badge bg-stone-100 text-stone-600">
-                          {i.title} · {i.quantityKg}kg
+                          {i.title} · {i.quantityKg}
+                          {t("common:units.kg", { defaultValue: "kg" })}
                         </span>
                       ))}
                     </div>
@@ -91,7 +114,7 @@ export default function Deliveries() {
                           <div className="flex h-1.5 overflow-hidden rounded-full bg-stone-200">
                             <div
                               className="h-full bg-forest"
-                              style={{ width: `${(o.status === "CONFIRMED" ? 20 : 40)}%` }}
+                              style={{ width: `${o.status === "CONFIRMED" ? 20 : 40}%` }}
                             />
                           </div>
                         </div>
@@ -100,7 +123,9 @@ export default function Deliveries() {
                           disabled={updating === o.id}
                           onClick={() => onAdvance(o)}
                         >
-                          {updating === o.id ? "Updating..." : step.label}
+                          {updating === o.id
+                            ? t("deliveries.updating", { defaultValue: "Updating..." })
+                            : t(`deliveries.steps.${step.key}`, { defaultValue: step.label })}
                         </button>
                       </>
                     )}

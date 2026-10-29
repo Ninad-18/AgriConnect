@@ -1,5 +1,6 @@
 import { classNames } from "@/lib/format";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 type Tone = "green" | "orange" | "red" | "blue" | "gray" | "amber";
 
@@ -27,9 +28,15 @@ export function toneText(status?: string): string {
 }
 
 export function Badge({ status, children }: { status?: string; children?: ReactNode }) {
+  const { t } = useTranslation("common");
+  const translated = status
+    ? t(`statuses.${status.toUpperCase()}`, {
+        defaultValue: toneText(status),
+      })
+    : "";
   return (
     <span className={classNames("badge", tones[toneFor(status)])}>
-      {children ?? toneText(status)}
+      {children ?? translated}
     </span>
   );
 }

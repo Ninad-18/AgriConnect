@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -6,8 +7,10 @@ import { getErrorMessage } from "@/services/api";
 import { fmtINR, fmtKg } from "@/lib/format";
 import { EmptyState, Spinner } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getLocalizedProductName } from "@/lib/products";
 
 export default function CartPage() {
+  const { t } = useTranslation(["customer", "common"]);
   const { user } = useAuth();
   const { cart, loading, update, remove, clear } = useCart();
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ export default function CartPage() {
   const onRemove = async (itemId: string) => {
     try {
       await remove(itemId);
-      toast.success("Removed from cart");
+      toast.success(t("cart.removedSuccess", { defaultValue: "Removed from cart" }));
     } catch (err) {
       toast.error(getErrorMessage(err));
     }
@@ -36,7 +39,7 @@ export default function CartPage() {
 
   const onClear = async () => {
     await clear();
-    toast.success("Cart cleared");
+    toast.success(t("cart.clearedSuccess", { defaultValue: "Cart cleared" }));
   };
 
   if (loading) return <Spinner />;
@@ -44,23 +47,26 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <PageHeader
-        title="Your Cart"
+        title={t("cart.title", { defaultValue: "Your Cart" })}
         actions={
           items.length > 0 ? (
             <button className="btn-secondary text-red-600" onClick={onClear}>
-              Clear cart
+              {t("cart.clearCart", { defaultValue: "Clear cart" })}
             </button>
           ) : undefined
         }
       />
 
       {items.length === 0 ? (
-        <EmptyState title="Your cart is empty" hint="Browse the marketplace to add fresh produce." />
+        <EmptyState
+          title={t("cart.emptyTitle", { defaultValue: "Your cart is empty" })}
+          hint={t("cart.emptyHint", { defaultValue: "Browse the marketplace to add fresh produce." })}
+        />
       ) : (
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-3 md:col-span-2">
             {items.map((i) => {
-              const listing = i.listing ?? {} as typeof i.listing;
+              const listing = i.listing ?? ({} as typeof i.listing);
               const unitPrice = i.unitPrice || listing.pricePerKg || 0;
               return (
                 <div key={i.id} className="card flex items-center gap-4">
@@ -73,9 +79,14 @@ export default function CartPage() {
                   </div>
                   <div className="flex-1">
                     <Link to={`/products/${i.listingId}`} className="font-semibold text-forest hover:underline">
-                      {listing.title ?? "Item"}
+                      {listing.title
+                        ? getLocalizedProductName(listing.title, listing.inventory?.cropName)
+                        : t("cart.item", { defaultValue: "Item" })}
                     </Link>
-                    <p className="text-sm text-stone-500">{fmtINR(unitPrice)}/kg</p>
+                    <p className="text-sm text-stone-500">
+                      {fmtINR(unitPrice)}
+                      {t("common:units.perKg", { defaultValue: "/kg" })}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -101,7 +112,7 @@ export default function CartPage() {
                   <div className="w-24 text-right">
                     <p className="font-bold text-forest">{fmtINR(i.quantityKg * unitPrice)}</p>
                     <button className="text-xs text-red-500 hover:underline" onClick={() => onRemove(i.id)}>
-                      Remove
+                      {t("cart.remove", { defaultValue: "Remove" })}
                     </button>
                   </div>
                 </div>
@@ -110,31 +121,44 @@ export default function CartPage() {
           </div>
 
           <div className="card self-start">
-            <h3 className="font-semibold text-forest">Order summary</h3>
+            <h3 className="font-semibold text-forest">
+              {t("cart.orderSummary", { defaultValue: "Order summary" })}
+            </h3>
             <div className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between text-stone-600">
-                <span>Subtotal ({fmtKg(items.reduce((a, i) => a + i.quantityKg, 0))})</span>
+                <span>
+                  {t("cart.subtotal", {
+                    qty: fmtKg(items.reduce((a, i) => a + i.quantityKg, 0)),
+                    defaultValue: `Subtotal (${fmtKg(items.reduce((a, i) => a + i.quantityKg, 0))})`,
+                  })}
+                </span>
                 <span>{fmtINR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-stone-600">
-                <span>Delivery</span>
-                <span>{delivery === 0 ? <span className="text-green-600 font-semibold">FREE</span> : fmtINR(delivery)}</span>
+                <span>{t("cart.delivery", { defaultValue: "Delivery" })}</span>
+                <span>
+                  {delivery === 0 ? (
+                    <span className="text-green-600 font-semibold">{t("cart.free", { defaultValue: "FREE" })}</span>
+                  ) : (
+                    fmtINR(delivery)
+                  )}
+                </span>
               </div>
               <div className="flex justify-between border-t border-stone-200 pt-2 font-bold text-forest">
-                <span>Total</span>
+                <span>{t("cart.total", { defaultValue: "Total" })}</span>
                 <span>{fmtINR(total)}</span>
               </div>
             </div>
             {!user && (
               <p className="mt-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
-                Login to checkout and get your order delivered.
+                {t("cart.loginNotice", { defaultValue: "Login to checkout and get your order delivered." })}
               </p>
             )}
             <button
               className="btn-primary mt-4 w-full"
               onClick={() => (user ? navigate("/checkout") : navigate("/auth/login"))}
             >
-              Proceed to checkout
+              {t("cart.proceedCheckout", { defaultValue: "Proceed to checkout" })}
             </button>
           </div>
         </div>

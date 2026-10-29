@@ -1,0 +1,73 @@
+{
+  "marketplace": {
+    "title": "Fresh Produce Marketplace",
+    "description": "Graded, farm-fresh produce straight from verified suppliers.",
+    "searchPlaceholder": "Search produce...",
+    "allGrades": "All grades",
+    "emptyTitle": "No products found",
+    "emptyHint": "Suppliers publish listings as their verified inventory grows.",
+    "available": "{{qty}} available",
+    "addToCart": "Add to cart",
+    "addedToCart": "Added to cart"
+  },
+  "productDetail": {
+    "backToMarketplace": "Back to marketplace",
+    "notFound": "Product not found.",
+    "available": "{{qty}} available",
+    "quantityLabel": "Quantity (kg)",
+    "total": "Total:",
+    "adding": "Adding...",
+    "addToCart": "Add to cart"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "clearCart": "Clear cart",
+    "emptyTitle": "Your cart is empty",
+    "emptyHint": "Browse the marketplace to add fresh produce.",
+    "item": "Item",
+    "remove": "Remove",
+    "orderSummary": "Order summary",
+    "subtotal": "Subtotal ({{qty}})",
+    "delivery": "Delivery",
+    "free": "FREE",
+    "total": "Total",
+    "loginNotice": "Login to checkout and get your order delivered.",
+    "proceedCheckout": "Proceed to checkout",
+    "removedSuccess": "Removed from cart",
+    "clearedSuccess": "Cart cleared"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "description": "Choose an address and pay securely.",
+    "emptyTitle": "Nothing to check out",
+    "emptyHint": "Your cart is empty.",
+    "browseMarketplace": "Browse marketplace",
+    "deliveryAddress": "Delivery address",
+    "noSavedAddresses": "No saved addresses yet.",
+    "defaultBadge": "Default",
+    "addNewAddress": "+ Add new address",
+    "addressLabel": "Label",
+    "phoneLabel": "Phone",
+    "line1Label": "Address line 1",
+    "cityLabel": "City",
+    "stateLabel": "State",
+    "pincodeLabel": "PIN code",
+    "saveAddress": "Save address",
+    "addressSavedSuccess": "Address saved",
+    "selectAddressError": "Select a delivery address",
+    "payBtn": "Pay {{amount}}",
+    "processing": "Processing...",
+    "orderCreatedSuccess": "Order created",
+    "razorpayWarning": "Razorpay key not configured — order will be created as payment-pending.",
+    "gatewayNotConfigured": "Payment gateway not configured in this environment. Your order is saved as pending payment.",
+    "paymentReceived": "Payment received. Confirming order..."
+  },
+  "orders": {
+    "title": "My Orders",
+    "shopMore": "Shop more",
+    "emptyTitle": "No orders yet",
+    "emptyHint": "Your placed orders will appear here with live tracking.",
+    "itemsCount": "{{count}} items",
+    "paymentLabel": "Payment:"
+  }
+}

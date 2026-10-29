@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { checkout, createPaymentOrder } from "@/services/orders";
@@ -21,6 +22,7 @@ declare global {
 const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined;
 
 export default function Checkout() {
+  const { t } = useTranslation(["customer", "common"]);
   const { cart, loading, clear } = useCart();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -72,21 +74,27 @@ export default function Checkout() {
       setAddresses((prev) => [...prev, created]);
       setAddressId(created.id);
       setShowNew(false);
-      toast.success("Address saved");
+      toast.success(t("checkout.addressSavedSuccess", { defaultValue: "Address saved" }));
     } catch (err) {
       toast.error(getErrorMessage(err));
     }
   };
 
   const onPay = async () => {
-    if (!addressId) return toast.error("Select a delivery address");
+    if (!addressId)
+      return toast.error(t("checkout.selectAddressError", { defaultValue: "Select a delivery address" }));
     setPaying(true);
     try {
       const { order } = await checkout(addressId);
-      toast.success("Order created");
+      toast.success(t("checkout.orderCreatedSuccess", { defaultValue: "Order created" }));
 
       if (!RAZORPAY_KEY || !window.Razorpay) {
-        toast.warning("Payment gateway not configured in this environment. Your order is saved as pending payment.");
+        toast.warning(
+          t("checkout.gatewayNotConfigured", {
+            defaultValue:
+              "Payment gateway not configured in this environment. Your order is saved as pending payment.",
+          })
+        );
         await clear();
         navigate("/orders");
         return;
@@ -101,7 +109,7 @@ export default function Checkout() {
         name: "AgriConnect",
         prefill: { email: "", contact: "" },
         handler: async () => {
-          toast.success("Payment received. Confirming order...");
+          toast.success(t("checkout.paymentReceived", { defaultValue: "Payment received. Confirming order..." }));
           await clear();
           navigate("/orders");
         },
@@ -118,29 +126,56 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
-        <PageHeader title="Checkout" />
-        <EmptyState title="Nothing to check out" hint="Your cart is empty." />
-        <Link to="/marketplace" className="btn-primary mt-4">Browse marketplace</Link>
+        <PageHeader title={t("checkout.title", { defaultValue: "Checkout" })} />
+        <EmptyState
+          title={t("checkout.emptyTitle", { defaultValue: "Nothing to check out" })}
+          hint={t("checkout.emptyHint", { defaultValue: "Your cart is empty." })}
+        />
+        <Link to="/marketplace" className="btn-primary mt-4">
+          {t("checkout.browseMarketplace", { defaultValue: "Browse marketplace" })}
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <PageHeader title="Checkout" description="Choose an address and pay securely." />
+      <PageHeader
+        title={t("checkout.title", { defaultValue: "Checkout" })}
+        description={t("checkout.description", { defaultValue: "Choose an address and pay securely." })}
+      />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-2">
-          <h3 className="font-semibold text-forest">Delivery address</h3>
+          <h3 className="font-semibold text-forest">
+            {t("checkout.deliveryAddress", { defaultValue: "Delivery address" })}
+          </h3>
           {addresses.length === 0 && !showNew && (
-            <p className="text-sm text-stone-500">No saved addresses yet.</p>
+            <p className="text-sm text-stone-500">
+              {t("checkout.noSavedAddresses", { defaultValue: "No saved addresses yet." })}
+            </p>
           )}
           <div className="space-y-2">
             {addresses.map((a) => (
-              <label key={a.id} className={`card flex cursor-pointer items-start gap-3 !p-4 ${addressId === a.id ? "border-forest ring-2 ring-forest/20" : ""}`}>
-                <input type="radio" name="address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
+              <label
+                key={a.id}
+                className={`card flex cursor-pointer items-start gap-3 !p-4 ${
+                  addressId === a.id ? "border-forest ring-2 ring-forest/20" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="address"
+                  checked={addressId === a.id}
+                  onChange={() => setAddressId(a.id)}
+                />
                 <span>
                   <span className="block text-sm font-semibold text-forest">
-                    {a.label} {a.isDefault && <span className="badge bg-green-100 text-green-700 ml-1">Default</span>}
+                    {a.label}{" "}
+                    {a.isDefault && (
+                      <span className="badge bg-green-100 text-green-700 ml-1">
+                        {t("checkout.defaultBadge", { defaultValue: "Default" })}
+                      </span>
+                    )}
                   </span>
                   <span className="mt-1 block text-sm text-stone-500">
                     {a.line1}, {a.city}, {a.state} {a.pincode}
@@ -154,64 +189,114 @@ export default function Checkout() {
             <form onSubmit={onNewAddress} className="card space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="label">Label</label>
-                  <input className="input" value={newAddr.label} onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })} />
+                  <label className="label">{t("checkout.addressLabel", { defaultValue: "Label" })}</label>
+                  <input
+                    className="input"
+                    value={newAddr.label}
+                    onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="label">Phone</label>
-                  <input className="input" value={newAddr.phone} onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })} />
+                  <label className="label">{t("checkout.phoneLabel", { defaultValue: "Phone" })}</label>
+                  <input
+                    className="input"
+                    value={newAddr.phone}
+                    onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
+                  />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="label">Address line 1</label>
-                  <input className="input" required value={newAddr.line1} onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })} />
+                  <label className="label">{t("checkout.line1Label", { defaultValue: "Address line 1" })}</label>
+                  <input
+                    className="input"
+                    required
+                    value={newAddr.line1}
+                    onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="label">City</label>
-                  <input className="input" required value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} />
+                  <label className="label">{t("checkout.cityLabel", { defaultValue: "City" })}</label>
+                  <input
+                    className="input"
+                    required
+                    value={newAddr.city}
+                    onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="label">State</label>
-                  <input className="input" required value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} />
+                  <label className="label">{t("checkout.stateLabel", { defaultValue: "State" })}</label>
+                  <input
+                    className="input"
+                    required
+                    value={newAddr.state}
+                    onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="label">PIN code</label>
-                  <input className="input" required pattern="[0-9]{6}" value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} />
+                  <label className="label">{t("checkout.pincodeLabel", { defaultValue: "PIN code" })}</label>
+                  <input
+                    className="input"
+                    required
+                    pattern="[0-9]{6}"
+                    value={newAddr.pincode}
+                    onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
+                  />
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="btn-primary" type="submit">Save address</button>
-                <button className="btn-secondary" type="button" onClick={() => setShowNew(false)}>Cancel</button>
+                <button className="btn-primary" type="submit">
+                  {t("checkout.saveAddress", { defaultValue: "Save address" })}
+                </button>
+                <button className="btn-secondary" type="button" onClick={() => setShowNew(false)}>
+                  {t("common:actions.cancel", { defaultValue: "Cancel" })}
+                </button>
               </div>
             </form>
           ) : (
-            <button className="btn-secondary" onClick={() => setShowNew(true)}>+ Add new address</button>
+            <button className="btn-secondary" onClick={() => setShowNew(true)}>
+              {t("checkout.addNewAddress", { defaultValue: "+ Add new address" })}
+            </button>
           )}
         </div>
 
         <div className="card self-start">
-          <h3 className="font-semibold text-forest">Order summary</h3>
+          <h3 className="font-semibold text-forest">
+            {t("cart.orderSummary", { defaultValue: "Order summary" })}
+          </h3>
           <div className="mt-3 space-y-2 text-sm">
             {items.map((i) => (
               <div key={i.id} className="flex justify-between text-stone-600">
-                <span>{i.listing?.title ?? "Item"} × {i.quantityKg}kg</span>
+                <span>
+                  {i.listing?.title ?? t("cart.item", { defaultValue: "Item" })} × {i.quantityKg}
+                  {t("common:units.kg", { defaultValue: "kg" })}
+                </span>
                 <span>{fmtINR((i.unitPrice || i.listing?.pricePerKg || 0) * i.quantityKg)}</span>
               </div>
             ))}
             <div className="flex justify-between border-t border-stone-200 pt-2 text-stone-600">
-              <span>Delivery</span>
-              <span>{delivery === 0 ? <span className="text-green-600 font-semibold">FREE</span> : fmtINR(delivery)}</span>
+              <span>{t("cart.delivery", { defaultValue: "Delivery" })}</span>
+              <span>
+                {delivery === 0 ? (
+                  <span className="text-green-600 font-semibold">{t("cart.free", { defaultValue: "FREE" })}</span>
+                ) : (
+                  fmtINR(delivery)
+                )}
+              </span>
             </div>
             <div className="flex justify-between font-bold text-forest">
-              <span>Total</span>
+              <span>{t("cart.total", { defaultValue: "Total" })}</span>
               <span>{fmtINR(total)}</span>
             </div>
           </div>
           <button className="btn-primary mt-4 w-full" disabled={paying} onClick={onPay}>
-            {paying ? "Processing..." : `Pay ${fmtINR(total)}`}
+            {paying
+              ? t("checkout.processing", { defaultValue: "Processing..." })
+              : t("checkout.payBtn", { amount: fmtINR(total), defaultValue: `Pay ${fmtINR(total)}` })}
           </button>
           {!RAZORPAY_KEY && (
             <p className="mt-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
-              Razorpay key not configured — order will be created as payment-pending.
+              {t("checkout.razorpayWarning", {
+                defaultValue: "Razorpay key not configured — order will be created as payment-pending.",
+              })}
             </p>
           )}
         </div>

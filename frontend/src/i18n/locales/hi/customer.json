@@ -1,0 +1,73 @@
+{
+  "marketplace": {
+    "title": "ताज़ा कृषि उत्पाद मंडी",
+    "description": "सत्यापित आपूर्तिकर्ताओं से सीधे खेत-ताज़ा, श्रेणीबद्ध (ग्रेडेड) उत्पाद।",
+    "searchPlaceholder": "उपज खोजें...",
+    "allGrades": "सभी ग्रेड",
+    "emptyTitle": "कोई उत्पाद नहीं मिला",
+    "emptyHint": "जैसे-जैसे आपूर्तिकर्ताओं का सत्यापित स्टॉक बढ़ेगा, उत्पाद लिस्टिंग यहां दिखाई देगी।",
+    "available": "{{qty}} उपलब्ध",
+    "addToCart": "कार्ट में जोड़ें",
+    "addedToCart": "कार्ट में जोड़ा गया"
+  },
+  "productDetail": {
+    "backToMarketplace": "मंडी पर वापस जाएं",
+    "notFound": "उत्पाद नहीं मिला।",
+    "available": "{{qty}} उपलब्ध",
+    "quantityLabel": "मात्रा (किग्रा)",
+    "total": "कुल:",
+    "adding": "जोड़ा जा रहा है...",
+    "addToCart": "कार्ट में जोड़ें"
+  },
+  "cart": {
+    "title": "आपकी कार्ट",
+    "clearCart": "कार्ट खाली करें",
+    "emptyTitle": "आपकी कार्ट खाली है",
+    "emptyHint": "ताज़ा उत्पाद जोड़ने के लिए मंडी में ब्राउज़ करें।",
+    "item": "वस्तु",
+    "remove": "हटाएं",
+    "orderSummary": "ऑर्डर सारांश",
+    "subtotal": "उप-योग ({{qty}})",
+    "delivery": "वितरण शुल्क (डिलीवरी)",
+    "free": "निःशुल्क (FREE)",
+    "total": "कुल राशि",
+    "loginNotice": "चेकआउट करने और अपने ऑर्डर की डिलीवरी पाने के लिए लॉगिन करें।",
+    "proceedCheckout": "चेकआउट के लिए आगे बढ़ें",
+    "removedSuccess": "कार्ट से हटा दिया गया",
+    "clearedSuccess": "कार्ट खाली कर दी गई"
+  },
+  "checkout": {
+    "title": "चेकआउट",
+    "description": "पता चुनें और सुरक्षित भुगतान करें।",
+    "emptyTitle": "चेकआउट के लिए कुछ नहीं है",
+    "emptyHint": "आपकी कार्ट खाली है।",
+    "browseMarketplace": "मंडी देखें",
+    "deliveryAddress": "वितरण का पता (डिलीवरी एड्रेस)",
+    "noSavedAddresses": "अभी कोई सहेजा गया पता नहीं है।",
+    "defaultBadge": "डिफ़ॉल्ट",
+    "addNewAddress": "+ नया पता जोड़ें",
+    "addressLabel": "नाम / लेबल (उदा. घर, कार्यालय)",
+    "phoneLabel": "फ़ोन नंबर",
+    "line1Label": "पता पंक्ति 1",
+    "cityLabel": "शहर / नगर",
+    "stateLabel": "राज्य",
+    "pincodeLabel": "पिन कोड",
+    "saveAddress": "पता सहेजें",
+    "addressSavedSuccess": "पता सहेजा गया",
+    "selectAddressError": "कृपया डिलीवरी का पता चुनें",
+    "payBtn": "{{amount}} का भुगतान करें",
+    "processing": "प्रक्रिया जारी है...",
+    "orderCreatedSuccess": "ऑर्डर बन गया",
+    "razorpayWarning": "रेज़रपे कुंजी कॉन्फ़िगर नहीं है — ऑर्डर भुगतान-लंबित के रूप में बनाया जाएगा।",
+    "gatewayNotConfigured": "इस परिवेश में भुगतान गेटवे कॉन्फ़िगर नहीं है। आपका ऑर्डर भुगतान-लंबित के रूप में सहेजा गया है।",
+    "paymentReceived": "भुगतान प्राप्त हुआ। ऑर्डर की पुष्टि की जा रही है..."
+  },
+  "orders": {
+    "title": "मेरे ऑर्डर",
+    "shopMore": "और खरीदारी करें",
+    "emptyTitle": "अभी कोई ऑर्डर नहीं है",
+    "emptyHint": "आपके द्वारा दिए गए ऑर्डर लाइव ट्रैकिंग के साथ यहां दिखाई देंगे।",
+    "itemsCount": "{{count}} वस्तुएं",
+    "paymentLabel": "भुगतान स्थिति:"
+  }
+}
