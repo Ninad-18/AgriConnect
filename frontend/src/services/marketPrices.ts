@@ -15,3 +15,7 @@ export async function fetchHistory(crop: string): Promise<{ date: string; price:
   const { data } = await api.get(`/market-prices/history/${crop}`);
   return data.data ?? [];
 }
+
+export async function refreshPrice(crop: string): Promise<void> {
+  await api.post(`/market-prices/refresh/${crop}`);
+}
