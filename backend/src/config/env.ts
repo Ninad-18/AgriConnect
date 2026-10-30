@@ -51,6 +51,17 @@ export const env = {
     internalToken: process.env.QUALITY_INTERNAL_TOKEN ?? "",
     timeoutMs: Number(process.env.QUALITY_SERVICE_TIMEOUT_MS ?? 8000),
   },
+
+  marketPrices: {
+    dataGovInApiKey: process.env.DATA_GOV_IN_API_KEY ?? "",
+    agmarknetResourceId:
+      process.env.AGMARKNET_RESOURCE_ID ?? "9ef84268-d588-465a-a308-a864a43d0070",
+    enamApiUrl: process.env.ENAM_API_URL ?? "",
+    enamApiKey: process.env.ENAM_API_KEY ?? "",
+    imdApiKey: process.env.IMD_API_KEY ?? "",
+    imdBearerToken: process.env.IMD_BEARER_TOKEN ?? "",
+    dataMode: process.env.MARKET_DATA_MODE ?? "demo",
+  },
 };
 
 export const isProd = env.nodeEnv === "production";

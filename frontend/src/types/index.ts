@@ -252,11 +252,101 @@ export interface MarketPrice {
   crop: string;
   unit: string;
   current: number;
-  avg30d?: number;
-  min30d?: number;
-  max30d?: number;
+  avg30d?: number | null;
+  min30d?: number | null;
+  max30d?: number | null;
   source: string;
-  history: { date: string; price: number }[];
+  history: { date: string; price: number; min?: number; max?: number }[];
+
+  // Multi-source intelligence & provenance
+  commodity?: string;
+  variety?: string;
+  market?: string;
+  state?: string;
+  arrivalDate?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  modalPrice?: number;
+  isDemo?: boolean;
+  stale?: boolean;
+  sourcesAvailable?: string[];
+  provenance?: {
+    provider: string;
+    dataset?: string;
+    sourceObservationId?: string;
+    retrievalTime: string;
+    reportingDate: string;
+    rawUnit: string;
+    rawMinPrice?: number;
+    rawMaxPrice?: number;
+    rawModalPrice?: number;
+    conversionFactor: number;
+  };
+  comparison?: {
+    status: "UNAVAILABLE" | "HIGH_AGREEMENT" | "MODERATE_AGREEMENT" | "DISCREPANCY";
+    primarySource: string;
+    primaryModalPrice: number;
+    observedSources: Array<{
+      source: string;
+      modalPrice: number;
+      minPrice: number;
+      maxPrice: number;
+      arrivalDate: string;
+      market: string;
+      variety?: string;
+      weight: number;
+      isIndependent: boolean;
+    }>;
+    minObserved: number;
+    maxObserved: number;
+    spreadPct: number;
+    weightedEstimate?: number;
+    discrepancyWarning?: string;
+    notes?: string;
+  };
+  analytics?: {
+    observationCount: number;
+    windowDays: number;
+    minPrice: number | null;
+    maxPrice: number | null;
+    avgPrice: number | null;
+    latestModalPrice: number | null;
+    earliestModalPrice: number | null;
+    absoluteChange: number | null;
+    percentageChange: number | null;
+    trend7d: "UP" | "DOWN" | "STABLE" | "INSUFFICIENT_DATA";
+    trend30d: "UP" | "DOWN" | "STABLE" | "INSUFFICIENT_DATA";
+    trend90d: "UP" | "DOWN" | "STABLE" | "INSUFFICIENT_DATA";
+    volatilityPct: number | null;
+    trendDurationDays: number;
+    status: "CALCULATED" | "INSUFFICIENT_DATA";
+  };
+  anomaly?: {
+    severity: "NORMAL" | "WATCH" | "ANOMALY";
+    type: "NONE" | "RECORD_DISCREPANCY" | "SPIKE" | "CRASH";
+    score: number;
+    medianBaseline: number | null;
+    mad: number | null;
+    isAnomaly: boolean;
+    explanation?: string;
+  };
+  weatherRisk?: {
+    available: boolean;
+    provider: string;
+    region: string;
+    alertSeverity: "GREEN" | "YELLOW" | "ORANGE" | "RED";
+    alertTitle?: string;
+    alertDescription?: string;
+    potentialSupplyRisk: "NONE" | "LOW" | "MODERATE" | "HIGH";
+    affectedCrops: string[];
+    disclaimer: string;
+  };
+  seasonalContext?: Array<{
+    event: string;
+    seasonType: string;
+    signal: string;
+    description: string;
+  }>;
 }
 
 export interface Notification {
