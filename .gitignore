@@ -22,3 +22,41 @@ Thumbs.db
 *.swo
 coverage
 **/coverage
+
+# Private local configuration and credentials
+**/.env
+**/.env.*
+!**/.env.example
+memory/test_ credentials.md
+*.pem
+*.key
+*.p12
+*.pfx
+
+# User-uploaded media — use object storage or a separate private backup
+backend/uploads/
+
+# Python environments, caches, local datasets and trained model artefacts
+**/.venv/
+**/venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+services/crop-quality-service/models/
+services/crop-quality-service/data/
+services/crop-quality-service/runs/
+services/crop-quality-service/reports/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.h5
+*.joblib
+*.pkl
+*.pickle
+
+# Local databases and runtime files
+*.sqlite
+*.sqlite3
+*.db
+uploads/
