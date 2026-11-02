@@ -60,3 +60,13 @@ services/crop-quality-service/reports/
 *.sqlite3
 *.db
 uploads/
+
+
+
+instructions.txt
+docker-compose.override.yml
+Explanation.md
+api_free_tiers.png
+system_design.txt
+
+AgriConnect_System_Design_Case_Study.docx
