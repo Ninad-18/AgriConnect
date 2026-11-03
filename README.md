@@ -96,17 +96,6 @@ app/
 
 See [Explanation.md](./Explanation.md) for the full, detailed file tree with per-file roles.
 
-## Quick Start
-
-1. **Read** [
-ext_steps.txt](./next_steps.txt) for the exact commands
-2. **Set up env** � Fill ackend/.env and rontend/.env (see [Environment Variables](#environment-variables))
-3. **Start databases** � Use Docker ([section below](#running-with-docker-recommended)) or run Postgres/MongoDB/Redis natively
-4. **Apply schema + seed** � cd backend && npx prisma db push && npm run prisma:seed
-5. **Run apps** � Backend (
-pm run dev on :5000), Frontend (
-pm run dev on :5173)
-6. **Login** with demo credentials
 
 ## Environment Variables
 
