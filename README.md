@@ -97,28 +97,6 @@ app/
 See [Explanation.md](./Explanation.md) for the full, detailed file tree with per-file roles.
 
 
-## Environment Variables
-
-### Backend (ackend/.env)
-| Variable | Required | Notes |
-|---|---|---|
-| DATABASE_URL | **Yes** | postgresql://agriconnect:agriconnect@localhost:5432/agriconnect?schema=public |
-| MONGO_URL | **Yes** | mongodb://localhost:27017/agriconnect |
-| REDIS_URL | **Yes** | 
-edis://localhost:6379 |
-| JWT_SECRET | **Yes** | Generate a long random string (never commit real secrets) |
-| CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET | For image uploads | Get from [cloudinary.com](https://cloudinary.com) |
-| RAZORPAY_KEY_ID/KEY_SECRET/WEBHOOK_SECRET | For payments | Get from [dashboard.razorpay.com](https://dashboard.razorpay.com) (use Test keys in dev) |
-| FIREBASE_SERVICE_ACCOUNT_PATH | Optional | For FCM push notifications |
-| GOOGLE_MAPS_API_KEY | Optional | For maps/distance features |
-
-### Frontend (rontend/.env)
-`env
-VITE_API_BASE_URL=http://localhost:5000
-VITE_RAZORPAY_KEY_ID=   # same as backend RAZORPAY_KEY_ID if testing payments
-`
-
-> .env files are **gitignored**. Never commit real secrets. Only .env.example is tracked.
 
 ## Running with Docker (Recommended)
 
