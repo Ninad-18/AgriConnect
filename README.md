@@ -25,13 +25,13 @@ A production-oriented agricultural procurement and e-commerce platform that conn
 
 AgriConnect solves the information asymmetry in agricultural supply chains by enabling:
 
-1. **Market price transparency** � View and track crop market prices
-2. **Reverse procurement** � Suppliers post procurement requirements with quantity, grade, and deadline
-3. **Open competitive bidding** � Farmers bid transparently with price, quantity, grade, and delivery date
-4. **Smart bid ranking** � Explainable scoring to help suppliers shortlist (recommendation-only)
-5. **Quality verification** � Drives inventory ownership transfer after acceptance
-6. **Supplier inventory** � Verified produce becomes sellable stock
-7. **B2C marketplace** � Suppliers list inventory and customers buy directly
+1. **Market price transparency**  View and track crop market prices
+2. **Reverse procurement**  Suppliers post procurement requirements with quantity, grade, and deadline
+3. **Open competitive bidding**  Farmers bid transparently with price, quantity, grade, and delivery date
+4. **Smart bid ranking**  Explainable scoring to help suppliers shortlist (recommendation-only)
+5. **Quality verification**  Drives inventory ownership transfer after acceptance
+6. **Supplier inventory**  Verified produce becomes sellable stock
+7. **B2C marketplace**  Suppliers list inventory and customers buy directly
 
 ## Documentation
 
