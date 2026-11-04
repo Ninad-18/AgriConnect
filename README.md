@@ -55,10 +55,8 @@ Exactly **three** user roles (**no admin portal**):
 | **Auth** | JWT (jsonwebtoken) + bcrypt |
 | **Images** | Cloudinary 2.5.1 |
 | **Real-time** | Socket.IO 4.8.1 (bid updates & notifications) |
-| **Notifications** | Firebase Cloud Messaging (firebase-admin 12.7.0 � optional in dev) |
-| **Payments** | Razorpay 2.9.4 (server-verified + signed webhooks, idempotent) |
-| **Validation** | Zod 3.23.8 (backend + frontend) |
-| **Dev Tools** | ts-node-dev, TypeScript 5.6.3, Vite, PostCSS, Autoprefixer |
+| **Notifications** | Firebase Cloud Messaging (firebase-admin 12.7.0  optional in dev) |
+
 
 ## Architecture
 
