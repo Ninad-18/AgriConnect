@@ -33,14 +33,7 @@ AgriConnect solves the information asymmetry in agricultural supply chains by en
 6. **Supplier inventory**  Verified produce becomes sellable stock
 7. **B2C marketplace**  Suppliers list inventory and customers buy directly
 
-## Documentation
 
-| File | Purpose |
-|------------------------------------------|-------------------------------------------------|
-| [
-ext_steps.txt](./next_steps.txt)           | Step-by-step guide to get the app fully running locally                                               |
-| [Explanation.md](./Explanation.md)       | Detailed technical explanation (file roles, API keys, data flow, workflows, installed libs)           |
-| [system_design.txt](./system_design.txt) | Complete system design case study (requirements, ERD summary, scaling, security, trade-offs)           |
 
 ## Roles
 
