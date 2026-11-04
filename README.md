@@ -71,29 +71,13 @@ Exactly **three** user roles (**no admin portal**):
 All API responses follow the envelope: { success: true, data: <value> }. The frontend services unwrap 
 es.data.data.
 
-## Project Structure
-
-`	ext
-app/
-+-- README.md
-+-- Explanation.md
-+-- system_design.txt
-+-- next_steps.txt
-+-- docker-compose.yml
-+-- backend/        # Express + TS API (modular: auth, farmers, suppliers, customers, procurement, bidding, allocation, quality, inventory, products, orders, payments, notifications, market-prices, tracking)
-+-- frontend/       # React + Vite + TS + Tailwind
-+-- prisma/         # schema.prisma + seed.ts (inside backend/)
-`
-
-See [Explanation.md](./Explanation.md) for the full, detailed file tree with per-file roles.
-
 
 
 ## Running with Docker (Recommended)
 
 If Docker Desktop is installed and running:
 
-`ash
+
 # From project root
 docker compose up -d postgres mongodb redis
 # wait a few seconds for DBs to be ready
@@ -116,10 +100,10 @@ docker compose up -d backend frontend
 ## Running Natively (No Docker)
 
 1. Install & start **PostgreSQL**, **MongoDB**, **Redis** on localhost:5432, 27017, 6379
-2. Update ackend/.env if your credentials differ
+2. Update backend/.env if your credentials differ
 3. Run:
 
-`ash
+`bash
 # Terminal 1 - Backend
 cd backend
 npm install  # already done if node_modules present
@@ -133,21 +117,13 @@ npm install  # already done if node_modules present
 npm run dev
 `
 
-## Demo Credentials
 
-Seeded with password123:
-
-| Role | Email | Name |
-|---|---|---|
-| **Farmer** | armer@agriconnect.in | Ramesh Patil |
-| **Supplier** | supplier@agriconnect.in | GreenMart Wholesale |
-| **Customer** | customer@agriconnect.in | Priya Sharma |
 
 ## Build & Typecheck
 
 Both projects build clean in this repo:
 
-`ash
+`bash
 # Backend
 cd backend
 npm run typecheck  # tsc --noEmit
@@ -193,18 +169,6 @@ The optional FastAPI service in `services/crop-quality-service` receives bid-pho
 - **Customer Order:** CREATED ? PAYMENT_PENDING ? CONFIRMED ? PROCESSING ? PACKED ? SHIPPED ? OUT_FOR_DELIVERY ? DELIVERED
 - **Payment:** CREATED ? CAPTURED (webhook-driven, idempotent)
 
-## Key Notes
-
-- **Exactly 3 roles** � FARMER, SUPPLIER, CUSTOMER. No admin role/portal.
-- **Source of truth** � PostgreSQL via Prisma. MongoDB is for flexible/audit data. Redis is for cache.
-- **Payments are secure** � Server creates Razorpay order; only **signed webhook** marks as captured. Idempotent by event/order keys. Never trust frontend success.
-- **Open bidding** � Transparent until bid deadline. Modify/withdraw only before deadline.
-- **Ownership** � Stays with farmer until quality verification result is ACCEPTED/ADJUSTED.
-- **Response envelope** � All backend endpoints return { success: true, data: ... }; frontend unwraps 
-es.data.data.
-- **Route ordering note** � GET /market-prices/history/:crop is registered after GET /market-prices/:crop; be mindful if adding similar param routes.
-- **Git hygiene** � .env, 
-ode_modules, dist, .vite, logs are gitignored. docker-compose.yml is safe to commit.
 
 ## Development Phases
 
