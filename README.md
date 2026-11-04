@@ -39,9 +39,9 @@ AgriConnect solves the information asymmetry in agricultural supply chains by en
 
 Exactly **three** user roles (**no admin portal**):
 
-1. **Farmer** � Discover procurements, submit/update/withdraw bids (before deadline), manage contracts & deliveries
-2. **Supplier/Wholesaler** � Create procurements, review bids, accept bids, verify quality, manage inventory & product listings, handle deliveries
-3. **Customer** � Browse marketplace, add to cart, checkout, track orders
+1. **Farmer**  Discover procurements, submit/update/withdraw bids (before deadline), manage contracts & deliveries
+2. **Supplier/Wholesaler**  Create procurements, review bids, accept bids, verify quality, manage inventory & product listings, handle deliveries
+3. **Customer**  Browse marketplace, add to cart, checkout, track orders
 
 ## Tech Stack
 
