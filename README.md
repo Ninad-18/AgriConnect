@@ -95,8 +95,6 @@ docker compose up -d backend frontend
 - Backend API: [http://localhost:5000](http://localhost:5000)
 - Health: [http://localhost:5000/health](http://localhost:5000/health)
 
-**Note:** docker-compose.yml contains **no real secrets** � it uses local dev defaults and reads from .env files via env_file. It's safe to commit to GitHub.
-
 ## Running Natively (No Docker)
 
 1. Install & start **PostgreSQL**, **MongoDB**, **Redis** on localhost:5432, 27017, 6379
