@@ -172,11 +172,11 @@ The optional FastAPI service in `services/crop-quality-service` receives bid-pho
 
 ## Development Phases
 
-1. **Auth & Users** � Registration, login, JWT, roles, profiles
-2. **Procurement** � Create requirements, discover, open bidding, deadlines
-3. **Smart Procurement** � Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
-4. **Quality & Inventory** � Image upload, grade, quality verification, contracts, inventory
-5. **E-commerce** � Listings, search, cart, checkout, customer orders
+1. **Auth & Users** - Registration, login, JWT, roles, profiles
+2. **Procurement** - Create requirements, discover, open bidding, deadlines
+3. **Smart Procurement** - Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
+4. **Quality & Inventory** - Image upload, grade, quality verification, contracts, inventory
+5. **E-commerce** - Listings, search, cart, checkout, customer orders
 6. **Payments** � Razorpay server-side + webhooks + idempotency
 7. **Notifications & Real-time** � FCM (optional), Socket.IO
 8. **Market Prices** � Seed + Redis cache-aside
