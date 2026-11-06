@@ -139,7 +139,7 @@ npm run build      # builds to dist/ (vite)
 
 ### B2B: Procurement ? Bidding ? Contracts
 1. **Supplier** creates procurement (OPEN) with quantity, min grade, bid deadline
-2. **Farmers** submit bids (open bidding � visible to others until deadline)
+2. **Farmers** submit bids (open bidding  visible to others until deadline)
 3. **Supplier** closes bidding ? views **Smart Allocation** recommendations (ranked by score)
 4. **Supplier** accepts 1+ bids ? **FarmerContract(s)** created in a transaction
 5. **Farmer delivers** ? Supplier marks received ? **Quality Verification** (ACCEPTED/ADJUSTED/REJECTED/DISPUTED)
@@ -149,7 +149,7 @@ npm run build      # builds to dist/ (vite)
 1. **Supplier** creates **ProductListing** from verified inventory
 2. **Customer** browses marketplace, adds to cart, proceeds to checkout
 3. **Checkout** creates order (PAYMENT_PENDING) and **atomically reserves inventory**
-4. **Razorpay** � Backend creates Razorpay order ? customer pays ? **signed webhook** confirms (CAPTURED, idempotent) ? order becomes CONFIRMED and stock decremented
+4. **Razorpay**  Backend creates Razorpay order ? customer pays ? **signed webhook** confirms (CAPTURED, idempotent) ? order becomes CONFIRMED and stock decremented
 5. **Supplier** advances order status (PROCESSING ? PACKED ? SHIPPED ? OUT_FOR_DELIVERY ? DELIVERED); **Tracking** page shows events
 
 ### Smart Allocation (Recommendation-only)
@@ -177,8 +177,8 @@ The optional FastAPI service in `services/crop-quality-service` receives bid-pho
 3. **Smart Procurement** - Bid ranking, smart allocation UI, manual selection, multi-farmer acceptance
 4. **Quality & Inventory** - Image upload, grade, quality verification, contracts, inventory
 5. **E-commerce** - Listings, search, cart, checkout, customer orders
-6. **Payments** � Razorpay server-side + webhooks + idempotency
-7. **Notifications & Real-time** � FCM (optional), Socket.IO
-8. **Market Prices** � Seed + Redis cache-aside
-9. **Advanced** � AI quality, maps, logistics (scaffolded)
-10. **Production** � Docker, CI/CD, monitoring, logging, backups, scaling
+6. **Payments** - Razorpay server-side + webhooks + idempotency
+7. **Notifications & Real-time** - FCM (optional), Socket.IO
+8. **Market Prices** - Seed + Redis cache-aside
+9. **Advanced** - AI quality, maps, logistics (scaffolded)
+10. **Production** - Docker, CI/CD, monitoring, logging, backups, scaling
